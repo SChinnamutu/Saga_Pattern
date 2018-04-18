@@ -71,6 +71,9 @@ public class CardMaster implements Serializable {
 	@Column(name = "updated_at")
 	private String updatedAt;
 	
+	@Column(name = "card_expiry_date")
+	private String cardExpiryDate;
+	
 	public CardMaster() {
 		super();
 	}
@@ -186,7 +189,14 @@ public class CardMaster implements Serializable {
 	public void setCckeyMasterList(List<CCKeyMaster> cckeyMasterList) {
 		this.cckeyMasterList = cckeyMasterList;
 	}
-	
+
+	public String getCardExpiryDate() {
+		return cardExpiryDate;
+	}
+
+	public void setCardExpiryDate(String cardExpiryDate) {
+		this.cardExpiryDate = cardExpiryDate;
+	}
 	
 	
 }

@@ -7,6 +7,10 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.goomo.cardvault.constants.MessageCodes;
+import com.goomo.cardvault.dto.CardDTO;
+import com.goomo.cardvault.dto.CardDetailsRequest;
+
 
 /**
  * This class is used for implemeting the all common util operations
@@ -212,5 +216,31 @@ public class CommonUtils {
 			}
 		}
 		return ret.toString();
+	}
+	
+	public static CardDTO getCardDetails(String preDecryptCardDetails) throws Exception{
+		String[] preDecryptCardDetailsArr =  preDecryptCardDetails.split(Pattern.quote("^^"));
+		String cardNumber = preDecryptCardDetailsArr[0];
+		String nameOnCard = preDecryptCardDetailsArr[1];
+		String cardExpryDate = preDecryptCardDetailsArr[2];
+		CardDTO dto = new CardDTO(cardNumber, cardExpryDate, nameOnCard);
+		return dto;
+	}
+	
+	public static void validateCardDetails(String cardNumber, String nameOnCard, String cardExpiryDate) throws Exception{
+		if (CommonUtils.checkIsNullOrEmpty(cardNumber)
+				|| !CommonUtils.isNumaric(cardNumber)) {
+			throw new IllegalArgumentException(MessageCodes.CARD_NUMBER_NUMARIC);
+		}
+		if (!CommonUtils.isValidCardNumber(cardNumber)) {
+			throw new IllegalArgumentException(MessageCodes.INVALID_CARD_NUMBER);
+		}
+		boolean isCardExpired = DateUtils.isCardExpired(cardExpiryDate);
+		if(isCardExpired) {
+			throw new IllegalArgumentException(MessageCodes.CARD_EXPIRY_MSG);
+		}
+		if (CommonUtils.checkIsNullOrEmpty(nameOnCard)) {
+			throw new IllegalArgumentException(MessageCodes.INVALID_CARD_HOLDER_NAME);
+		}
 	}
 }

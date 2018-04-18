@@ -10,6 +10,7 @@ CREATE SEQUENCE "public"."hibernate_sequence"
 CREATE TABLE public.card_master
 (
   card_id integer NOT NULL DEFAULT nextval('card_master_id_seq'::regclass),
+  user_id character varying(255),
   card_token character varying(255) NOT NULL,
   card_unique_id character varying(255) NOT NULL,
   card_enc_details text,
@@ -17,11 +18,11 @@ CREATE TABLE public.card_master
   card_type character varying(255),
   card_issued_by character varying(255),
   card_status character varying(10),
+  card_expiry_date character varying(255),
   created_by character varying(255),
   created_at character varying(255),
   updated_by character varying(255),
-  updated_at character varying(255),
-  user_id character varying(255),
+  updated_at character varying(255), 
   CONSTRAINT id_pk PRIMARY KEY (card_id)
 )
 WITH (

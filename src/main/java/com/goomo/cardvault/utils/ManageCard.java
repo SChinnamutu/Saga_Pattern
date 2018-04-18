@@ -10,12 +10,16 @@ public class ManageCard {
 		 * Card Storage Process
 		 */
 		System.out.println("********************* Init Card Storage Process *********************");
-		String cardNumber = "2222224567222222";
-		String nameOnCard = "Himanshu Gupta";
-		String cardExpryDate = "11/2023";
+		String cardNumber = "379863334341009";
+		String nameOnCard = "Manjunath Jakkandi";
+		String cardExpryDate = "04/18";
 		System.out.println("cardNumber :: "+cardNumber);
 		System.out.println("nameOnCard :: "+nameOnCard);
 		System.out.println("cardExpryDate :: "+cardExpryDate);
+		
+		// validate if card is expired
+		boolean isCardExpiredFlag = DateUtils.isCardExpired(cardExpryDate);
+		System.out.println("isCardExpiredFlag >> "+isCardExpiredFlag);
 		
 		// pre encrypted card details
 		String cardDetails = cardNumber + "^^" + nameOnCard + "^^" + cardExpryDate;
@@ -34,7 +38,7 @@ public class ManageCard {
 		System.out.println("ccKey :: "+ccKey);
 		
 		// generate masked card number
-		String maskedCardNumber = CommonUtils.maskContent(cardNumber, false, 0, 4, "X");
+		String maskedCardNumber = CommonUtils.maskContent(cardNumber, false, 6, 4, "X");
 		System.out.println("maskedCardNumber :: "+maskedCardNumber);
 		
 		// encrypt card details with CCKey

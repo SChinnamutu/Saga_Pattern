@@ -97,13 +97,14 @@ public class CardDetailsResponse extends BaseResponse implements Serializable{
 	public void setCardIssuedBy(String cardIssuedBy) {
 		this.cardIssuedBy = cardIssuedBy;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "CardDetailsResponse [userId=" + userId + ", token=" + token + ", cardUniqueId=" + cardUniqueId
 				+ ", card=" + card + ", cardList=" + cardList + ", cckeyPart2=" + cckeyPart2 + ", tokenExpiry="
-				+ tokenExpiry + ", cardType=" + cardType + ", cardIssuedBy=" + cardIssuedBy + ", getStatus()="
-				+ getStatus() + ", getStatusMessage()=" + getStatusMessage() + ", toString()=" + super.toString() + "]";
+				+ tokenExpiry + ", cardType=" + cardType + ", cardIssuedBy=" + cardIssuedBy + 
+				", getStatus()=" + getStatus() + ", getStatusMessage()=" + getStatusMessage()
+				+ ", toString()=" + super.toString() + "]";
 	}
 
 }

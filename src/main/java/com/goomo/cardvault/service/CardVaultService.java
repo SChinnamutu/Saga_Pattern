@@ -225,6 +225,7 @@ public class CardVaultService {
 			card.setMaskedCardNumber(cardMaster.getMaskedCardNumber());
 			card.setCardIssuedBy(cardMaster.getCardIssuedBy());
 			card.setCardType(cardMaster.getCardType());
+			card.setCardExpired(DateUtils.isCardExpired(cardMaster.getCardExpiryDate(), new Date()));
 			if(isAddEncCardDetails) {
 				card.setEncCardDetails(cardMaster.getEncryptedCardDetails());
 			}
@@ -266,54 +267,53 @@ public class CardVaultService {
 	
 	public CardDetailsResponse storeNewCard(CardDetailsRequest request) throws Exception{
 		log.info("Card Vault :: Store Card :: request :: "+request.toString());
-		CardDetailsResponse response = new CardDetailsResponse();
-		if(request.getEncCardDetails()!=null && !request.getEncCardDetails().isEmpty()) {
-			
-			// decrypt pre-encrypted card details
-			String preDecryptCardDetails = CryptoUtils.decrypt(request.getEncCardDetails(), dataSourceConfig.getDataSource().getAesSecretKey());
-			String[] preDecryptCardDetailsArr =  preDecryptCardDetails.split(Pattern.quote("^^"));
-			String cardNumber = preDecryptCardDetailsArr[0];
-			String nameOnCard = preDecryptCardDetailsArr[1];
-			String cardExpryDate = preDecryptCardDetailsArr[2];
-			
-			// generate random key :: CCKey
-			String ccKey = CommonUtils.generate16DigitCardId();
-			log.info("Card Vault :: Store Card :: ccKey :: "+ccKey);
-			
-			// encrypt card details with CCKey
-			String encCardDetails = createEncCardDetails(cardNumber, nameOnCard, cardExpryDate, ccKey);
-			log.info("Card Vault :: Store Card :: encCardDetails :: "+encCardDetails);
-			
-			// encrypt cckey with cmk
-			String encCCKey = CryptoUtils.encrypt(ccKey, request.getCmk());
-			log.info("Card Vault :: Store Card :: encCCKey :: "+encCCKey);
-			
-			// split the encCCKey into two parts.
-			String part1 = encCCKey.substring(0, (encCCKey.length()/2));
-			String part2 = encCCKey.substring((encCCKey.length()/2));
-			log.info("Card Vault :: Store Card :: part1 :: "+part1);
-			log.info("Card Vault :: Store Card :: part2 :: "+part2);
-			
-			// store card details in database
-			CardMaster cardMaster = createCardMaster(request, cardNumber, nameOnCard, cardExpryDate, part1);
-			CardMaster storedCardMaster = cardVaultDAO.storeCard(cardMaster);
-			if(cardMaster!=null && cardMaster.getCardId() > 0) {
-				log.info("Card Vault :: Store Card :: CardId :: "+cardMaster.getCardId());
-				response.setStatus(MessageCodes.SUCCESS);
-				response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
-				response.setCckeyPart2(part2);
-				response.setToken(storedCardMaster.getCardToken());
-				response.setUserId(storedCardMaster.getUserId());
-				response.setCardUniqueId(storedCardMaster.getUniqueCardId());
-				response.setCardType(storedCardMaster.getCardType());
-				response.setCardIssuedBy(storedCardMaster.getCardIssuedBy());
-				response.setTokenExpiry(storedCardMaster.getCreatedAt());
-			}else {
-				throw new Exception();
-			}
-		}else {
+		
+		// validate card details
+		if(request.getEncCardDetails()==null || request.getEncCardDetails().isEmpty()) {
 			throw new IllegalArgumentException(MessageCodes.UN_AUTHORISATION);
 		}
+		String preDecryptCardDetails = CryptoUtils.decrypt(request.getEncCardDetails(), dataSourceConfig.getDataSource().getAesSecretKey());
+		CardDTO dto = CommonUtils.getCardDetails(preDecryptCardDetails);
+		CommonUtils.validateCardDetails(dto.getCardNumber(), dto.getCardHolderName(), dto.getCardExpiryMonthYear());
+		
+		// generate random key :: CCKey
+		String ccKey = CommonUtils.generate16DigitCardId();
+		log.info("Card Vault :: Store Card :: ccKey :: "+ccKey);
+		
+		// encrypt card details with CCKey
+		String encCardDetails = createEncCardDetails(dto.getCardNumber(), dto.getCardHolderName(), dto.getCardExpiryMonthYear(), ccKey);
+		log.info("Card Vault :: Store Card :: encCardDetails :: "+encCardDetails);
+		
+		// encrypt cckey with cmk
+		String encCCKey = CryptoUtils.encrypt(ccKey, request.getCmk());
+		log.info("Card Vault :: Store Card :: encCCKey :: "+encCCKey);
+		
+		// split the encCCKey into two parts.
+		String part1 = encCCKey.substring(0, (encCCKey.length()/2));
+		String part2 = encCCKey.substring((encCCKey.length()/2));
+		log.info("Card Vault :: Store Card :: part1 :: "+part1);
+		log.info("Card Vault :: Store Card :: part2 :: "+part2);
+		
+		// store card details in database
+		CardMaster cardMaster = createCardMaster(request, dto.getCardNumber(), dto.getCardHolderName(), dto.getCardExpiryMonthYear(), part1);
+		CardMaster storedCardMaster = cardVaultDAO.storeCard(cardMaster);
+		CardDetailsResponse response = new CardDetailsResponse();
+		if(cardMaster!=null && cardMaster.getCardId() > 0) {
+			log.info("Card Vault :: Store Card :: CardId :: "+cardMaster.getCardId());
+			response.setStatus(MessageCodes.SUCCESS);
+			response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
+			response.setCckeyPart2(part2);
+			response.setToken(storedCardMaster.getCardToken());
+			response.setUserId(storedCardMaster.getUserId());
+			response.setCardUniqueId(storedCardMaster.getUniqueCardId());
+			response.setCardType(storedCardMaster.getCardType());
+			response.setCardIssuedBy(storedCardMaster.getCardIssuedBy());
+			response.setTokenExpiry(storedCardMaster.getCreatedAt());
+		}else {
+			response.setStatus(MessageCodes.INVALID_RESPONSE);
+			response.setStatusMessage(new StatusMessage(MessageCodes.INVALID_RESPONSE_MSG, MessageCodes.INVALID_RESPONSE_DESC));
+		}
+		
 		log.info("Card Vault :: Store Card :: response :: "+response.toString());
 		return response;
 	}
@@ -329,12 +329,14 @@ public class CardVaultService {
 		String cardUniqueId = CommonUtils.generate36DigitUniqueId();
 		cardMaster.setUniqueCardId(cardUniqueId);
 		cardMaster.setEncryptedCardDetails(request.getEncCardDetails());
-		cardMaster.setMaskedCardNumber(CommonUtils.maskContent(cardNumber, false, 0, 4, "X"));
+		cardMaster.setMaskedCardNumber(CommonUtils.maskContent(cardNumber, false, 6, 4, "X"));
 		cardMaster.setCardType("CREDIT");
 		cardMaster.setCardIssuedBy("MASTREO");
 		cardMaster.setCardStatus("A");
 		cardMaster.setUserId(request.getUserId());
 		cardMaster.setCreatedBy(request.getTxnBy());
+		cardMaster.setCardExpiryDate(DateUtils.getCardExpiryDateFormat(cardExpiryDate));
+		
 		Date currentDateTime = new Date();
 		String createdDateTimeStr = DateUtils.convertDateToString(currentDateTime);
 		cardMaster.setCreatedAt(createdDateTimeStr);

@@ -14,9 +14,20 @@ public class CardDTO implements Serializable{
 	private String cardIssuedBy;
 	private String cardType;
 	private String encCardDetails;
+	private boolean isCardExpired;
+	
+	private String cardNumber;
+	private String cardExpiryMonthYear;
+	private String cardHolderName;
 	
 	public CardDTO() {
 		super();
+	}
+	
+	public CardDTO(String cardNumber, String cardExpiryMonthYear, String cardHolderName) {
+		this.cardNumber = cardNumber;
+		this.cardExpiryMonthYear = cardExpiryMonthYear;
+		this.cardHolderName = cardHolderName;
 	}
 
 	public String getUserId() {
@@ -81,6 +92,47 @@ public class CardDTO implements Serializable{
 
 	public void setEncCardDetails(String encCardDetails) {
 		this.encCardDetails = encCardDetails;
+	}
+
+	public boolean isCardExpired() {
+		return isCardExpired;
+	}
+
+	public void setCardExpired(boolean isCardExpired) {
+		this.isCardExpired = isCardExpired;
+	}
+
+	public String getCardNumber() {
+		return cardNumber;
+	}
+
+	public void setCardNumber(String cardNumber) {
+		this.cardNumber = cardNumber;
+	}
+
+	public String getCardExpiryMonthYear() {
+		return cardExpiryMonthYear;
+	}
+
+	public void setCardExpiryMonthYear(String cardExpiryMonthYear) {
+		this.cardExpiryMonthYear = cardExpiryMonthYear;
+	}
+
+	public String getCardHolderName() {
+		return cardHolderName;
+	}
+
+	public void setCardHolderName(String cardHolderName) {
+		this.cardHolderName = cardHolderName;
+	}
+
+	@Override
+	public String toString() {
+		return "CardDTO [userId=" + userId + ", cardToken=" + cardToken + ", uniqueCardId=" + uniqueCardId
+				+ ", cardStatus=" + cardStatus + ", maskedCardNumber=" + maskedCardNumber + ", cardIssuedBy="
+				+ cardIssuedBy + ", cardType=" + cardType + ", encCardDetails=" + encCardDetails + ", isCardExpired="
+				+ isCardExpired + ", cardNumber=" + cardNumber + ", cardExpiryMonthYear=" + cardExpiryMonthYear
+				+ ", cardHolderName=" + cardHolderName + "]";
 	}
 	
 }

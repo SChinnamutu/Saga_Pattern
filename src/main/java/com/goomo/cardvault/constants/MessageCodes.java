@@ -61,6 +61,7 @@ public class MessageCodes {
 	public static final String HEALTH_CHECK_RES_DESC = "Health check successful";
 	public static final String NO_RECORDS_DESC = "Sorry, No records found";
 	public static final String NO_RECORDS_MSG = "NO_RECORDS";
+	public static final String CARD_EXPIRY_MSG = "Card validity expired. Please provide valid card details";
 	
 	
 	
