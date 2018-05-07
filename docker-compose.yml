@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  card-vault-service:
+    restart: unless-stopped
+    build: .
+    environment:
+      ENVIRONMENT: prod
+      GRAYLOG_IP: 10.100.44.47
+      GRAYLOG_PORT: 12204
+      GRAYLOG_ENGINE_HOSTNAME: card-vault-service
+      GRAYLOG_FACILITY: env-card-vault
+      LOG_LEVEL_GOOMO: debug
+      LOG_LEVEL_ALL: info
+      DATASOURCE_URL: jdbc:postgresql://127.0.0.1:5432/card-vault
+      DATASOURCE_USERNAME: postgres
+      DATASOURCE_PASSWORD: postgres
+      DATASOURCE_DRIVER: org.postgresql.Driver
+      JPA_GENERATE_DDL: "true"
+      JPA_DATASOURCE_PLATFORM: org.hibernate.dialect.PostgreSQL94Dialect
+      JWT_SECRET_KEY: your-secret-key
+      SWAGGER_PROFILE: "true"
+      AES_SECRET_KEY: 0102030405060708
+    ports:
+      - "8086:8086"
+ 

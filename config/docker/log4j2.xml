@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This logging configuration is used by Docker, see bin/docker-entrypoint.sh -->
+<Configuration status="WARN">
+  <Appenders>
+    <Console name="console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%highlight{[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%X] %c{1} - %msg%n%throwable{full}}"/>
+    </Console>
+    <File name="file" fileName="logs/card-vault-service.log">
+      <PatternLayout pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%X] %c{1} - %msg%n"/>
+    </File>
+    <GELF name="gelf" server="${env:GRAYLOG_IP}" port="${env:GRAYLOG_PORT}"
+          hostname="${env:GRAYLOG_ENGINE_HOSTNAME}"
+          includeExceptionCause="true">
+
+      <KeyValuePair key="facility" value="${env:GRAYLOG_FACILITY}"/>
+      <PatternLayout pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %c{1} - %msg%n%throwable{10}"/>
+      <Filters>
+        <!-- Filter out flow tracing events: entry, exit & throwing. -->
+        <MarkerFilter marker="FLOW" onMatch="DENY" onMismatch="NEUTRAL"/>
+        <MarkerFilter marker="EXCEPTION" onMatch="DENY" onMismatch="ACCEPT"/>
+      </Filters>
+    </GELF>
+  </Appenders>
+  <Loggers>
+    <Logger name="com.goomo" level="${env:LOG_LEVEL_GOOMO:-debug}" additivity="false">
+      <AppenderRef ref="gelf"/>
+      <AppenderRef ref="console"/>
+    </Logger>
+    <Root level="${env:LOG_LEVEL_ALL:-info}">
+      <AppenderRef ref="console"/>
+      <AppenderRef ref="gelf"/>
+    </Root>
+  </Loggers>
+</Configuration>
