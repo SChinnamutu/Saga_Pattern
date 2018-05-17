@@ -214,6 +214,7 @@ public class CardVaultService {
 		
 		// cckey master object
 		CCKeyMaster ccKeyMaster = new CCKeyMaster();
+		ccKeyMaster.setCardMaster(cardMaster);
 		ccKeyMaster.setCardToken(cardToken);
 		ccKeyMaster.setUniqueCardId(cardUniqueId);
 		ccKeyMaster.setCckeyPart1(ccKeyPart1);

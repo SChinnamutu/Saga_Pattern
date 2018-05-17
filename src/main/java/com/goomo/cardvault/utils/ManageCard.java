@@ -10,9 +10,9 @@ public class ManageCard {
 		 * Card Storage Process
 		 */
 		System.out.println("********************* Init Card Storage Process *********************");
-		String cardNumber = "1111111111111111";
-		String nameOnCard = "Manjunath Jakkandi";
-		String cardExpryDate = "07/2013";
+		String cardNumber = "2222224567222222";
+		String nameOnCard = "Himanshu Gupta";
+		String cardExpryDate = "11/2023";
 		System.out.println("cardNumber :: "+cardNumber);
 		System.out.println("nameOnCard :: "+nameOnCard);
 		System.out.println("cardExpryDate :: "+cardExpryDate);
