@@ -46,4 +46,22 @@ public class CardVaultDAOImpl implements CardVaultDAO {
 		return savedCardMaster;
 	}
 
+	@Override
+	public void deleteCard(CardMaster cardMaster) throws Exception {
+		cardMasterRepository.delete(cardMaster);
+	}
+
+	@Override
+	public CardMaster fetchCardDetailsByTokenAndUserId(String token, String userId) throws Exception {
+		CardMaster cardMaster = cardMasterRepository.findByCardTokenAndUserId(token, userId);
+		return cardMaster;
+	}
+
+	@Override
+	public CardMaster fetchCardDetailsByUniqueIdAndUserId(String cardUniqueId, String userId) throws Exception {
+		CardMaster cardMaster = cardMasterRepository.findByUniqueCardIdAndUserId(cardUniqueId, userId);
+		return cardMaster;
+	}
+	
+
 }

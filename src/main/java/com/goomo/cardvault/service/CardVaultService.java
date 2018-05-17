@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.goomo.cardvault.auth.JWTAuth;
 import com.goomo.cardvault.config.CardVaultDataSourceConfig;
 import com.goomo.cardvault.constants.MessageCodes;
 import com.goomo.cardvault.dao.CardVaultDAO;
@@ -39,6 +40,114 @@ public class CardVaultService {
 	@Autowired
 	private CardVaultDataSourceConfig dataSourceConfig;
 	
+	
+	/**
+	 * This method is used to decrypt user id or cust id if it is encrypted with jwt token.
+	 * @author Manjunath Jakkandi
+	 * @param authorization
+	 * @return
+	 * @throws Exception
+	 */
+	public String decryptUserIdByJWT(String authorization) throws Exception{
+		String custId = null;
+		if(authorization!=null && !authorization.isEmpty()) {
+			authorization = authorization.replace("Bearer ", "");
+			log.info("Card Vault :: Verify UserId ::  authorization :: "+authorization);
+			custId = JWTAuth.decryptToken(authorization, dataSourceConfig.getDataSource().getJwtSecretKey());
+		}
+		return custId;
+	}
+	
+	/**
+	 * This method used to delete the card details. Input parameters is either card token or card unique id. If found, card
+	 * details are fetched and deleted.
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public CardDetailsResponse deleteCard(CardDetailsRequest request, String authorization) throws Exception {
+		log.info("Card Vault :: Delete Card :: request :: "+request.toString());
+		CardDetailsResponse response = new CardDetailsResponse();
+		
+		// verify user id or cust id from jwt token. if exists, decrypt through jwt.
+		if(authorization!=null && !authorization.isEmpty()) {
+			String userId = decryptUserIdByJWT(authorization);
+			if(userId!=null && !userId.isEmpty()) {
+				request.setUserId(userId);
+			}else {
+				throw new IllegalArgumentException(MessageCodes.UN_AUTHORISATION);
+			}
+		}
+		
+		// validate and process delete card if card token or card unique id is valid
+		if(request.getCardToken()!=null && !request.getCardToken().isEmpty() && request.getUserId()!=null && !request.getUserId().isEmpty()) {
+			log.info("Card Vault :: Delete Card :: By token :: "+request.getCardToken());
+			CardMaster cardMaster = cardVaultDAO.fetchCardDetailsByTokenAndUserId(request.getCardToken(), request.getUserId());
+			processDeleteCard(cardMaster, response);
+		}else if(request.getCardUniqueId()!=null && !request.getCardUniqueId().isEmpty()) {
+			log.info("Card Vault :: Delete Card :: By unque card id :: "+request.getCardUniqueId());
+			CardMaster cardMaster = cardVaultDAO.fetchCardDetailsByUniqueIdAndUserId(request.getCardUniqueId(), request.getUserId());
+			processDeleteCard(cardMaster, response);
+		}else {
+			response.setStatus(MessageCodes.BAD_REQUEST);
+			response.setStatusMessage(new StatusMessage(MessageCodes.BAD_REQUEST_MSG, MessageCodes.BAD_REQUEST_DESC));
+		}
+		log.info("Card Vault :: Delete Card :: response :: "+response.toString());
+		return response;
+	}
+	
+	public void processDeleteCard(CardMaster cardMaster, CardDetailsResponse response) throws Exception {
+		if(cardMaster!=null) {
+			cardVaultDAO.deleteCard(cardMaster);
+			response.setStatus(MessageCodes.SUCCESS);
+			response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
+		}else {
+			createSearchErrorResponse(response);
+		}
+	}
+	
+	/**
+	 * This method used to get card details along with encrypted card details as well to process the details further in
+	 * payment engine service. This method should not be exposed to clients.
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public CardDetailsResponse getEncCardDetails(CardDetailsRequest request) throws Exception {
+		log.info("Card Vault :: Get Enc Card Details :: request :: "+request.toString());
+		CardDetailsResponse response = new CardDetailsResponse();
+		if(request.getCardToken()!=null && !request.getCardToken().isEmpty()) {
+			log.info("Card Vault :: Get Enc Card Details :: By token :: "+request.getCardToken());
+			CardMaster cardMaster = cardVaultDAO.fetchCardDetailsByToken(request.getCardToken());
+			CardDTO card = processCardDetails(cardMaster, true);
+			if(card!=null) {
+				response.setStatus(MessageCodes.SUCCESS);
+				response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
+				response.setCard(card);
+			}else {
+				createSearchErrorResponse(response);
+			}
+		}else if(request.getCardUniqueId()!=null && !request.getCardUniqueId().isEmpty()) {
+			log.info("Card Vault :: Get Enc Card Details :: By unque card id :: "+request.getCardUniqueId());
+			CardMaster cardMaster = cardVaultDAO.fetchCardDetailsByUniqueId(request.getCardUniqueId());
+			CardDTO card = processCardDetails(cardMaster, true);
+			if(card!=null) {
+				response.setStatus(MessageCodes.SUCCESS);
+				response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
+				response.setCard(card);
+			}else {
+				createSearchErrorResponse(response);
+			}
+		}else {
+			response.setStatus(MessageCodes.BAD_REQUEST);
+			response.setStatusMessage(new StatusMessage(MessageCodes.BAD_REQUEST_MSG, MessageCodes.BAD_REQUEST_DESC));
+		}
+		log.info("Card Vault :: Get Enc Card Details :: response :: "+response.toString());
+		return response;
+	}
+	
 	/**
 	 * This method used to get the card details from user id or token or card unique id. 
 	 * If none of them matches, returns error response.
@@ -57,7 +166,7 @@ public class CardVaultService {
 				CardDTO card = null;
 				List<CardDTO> cardList = new ArrayList<CardDTO>();
 				for(CardMaster cardMaster : cardMasterList) {
-					 card = processCardDetails(cardMaster);
+					 card = processCardDetails(cardMaster, false);
 					 if(card!=null) {
 						 cardList.add(card);
 					 }
@@ -71,7 +180,7 @@ public class CardVaultService {
 		}else if(request.getCardToken()!=null && !request.getCardToken().isEmpty()) {
 			log.info("Card Vault :: Get Card Details :: By token :: "+request.getCardToken());
 			CardMaster cardMaster = cardVaultDAO.fetchCardDetailsByToken(request.getCardToken());
-			CardDTO card = processCardDetails(cardMaster);
+			CardDTO card = processCardDetails(cardMaster, false);
 			if(card!=null) {
 				response.setStatus(MessageCodes.SUCCESS);
 				response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
@@ -82,7 +191,7 @@ public class CardVaultService {
 		}else if(request.getCardUniqueId()!=null && !request.getCardUniqueId().isEmpty()) {
 			log.info("Card Vault :: Get Card Details :: By unque card id :: "+request.getCardUniqueId());
 			CardMaster cardMaster = cardVaultDAO.fetchCardDetailsByUniqueId(request.getCardUniqueId());
-			CardDTO card = processCardDetails(cardMaster);
+			CardDTO card = processCardDetails(cardMaster, false);
 			if(card!=null) {
 				response.setStatus(MessageCodes.SUCCESS);
 				response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
@@ -105,7 +214,7 @@ public class CardVaultService {
 	 * @param cardMaster
 	 * @return
 	 */
-	public CardDTO processCardDetails(CardMaster cardMaster) {
+	public CardDTO processCardDetails(CardMaster cardMaster, boolean isAddEncCardDetails) {
 		CardDTO card = null;
 		if(cardMaster!=null) {
 			card = new CardDTO();
@@ -116,6 +225,9 @@ public class CardVaultService {
 			card.setMaskedCardNumber(cardMaster.getMaskedCardNumber());
 			card.setCardIssuedBy(cardMaster.getCardIssuedBy());
 			card.setCardType(cardMaster.getCardType());
+			if(isAddEncCardDetails) {
+				card.setEncCardDetails(cardMaster.getEncryptedCardDetails());
+			}
 		}
 		return card;
 	}
@@ -133,6 +245,21 @@ public class CardVaultService {
 		}
 		response.setStatus(MessageCodes.INVALID_RESPONSE);
 		response.setStatusMessage(new StatusMessage(MessageCodes.NO_RECORDS_MSG, MessageCodes.NO_RECORDS_DESC));
+		return response;
+	}
+	
+	/**
+	 * This method used to create error response for delete card details when no card details not found.
+	 * @author Manjunath Jakkandi
+	 * @param response
+	 * @return
+	 */
+	public CardDetailsResponse createDeleteErrorResponse(CardDetailsResponse response) {
+		if(response == null) {
+			response = new CardDetailsResponse();
+		}
+		response.setStatus(MessageCodes.INVALID_RESPONSE);
+		response.setStatusMessage(new StatusMessage(MessageCodes.INVALID_RESPONSE_MSG, MessageCodes.INVALID_RESPONSE_DESC));
 		return response;
 	}
 	

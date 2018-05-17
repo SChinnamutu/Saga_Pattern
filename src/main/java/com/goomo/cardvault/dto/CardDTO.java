@@ -13,6 +13,7 @@ public class CardDTO implements Serializable{
 	private String maskedCardNumber;
 	private String cardIssuedBy;
 	private String cardType;
+	private String encCardDetails;
 	
 	public CardDTO() {
 		super();
@@ -72,6 +73,14 @@ public class CardDTO implements Serializable{
 
 	public void setCardType(String cardType) {
 		this.cardType = cardType;
+	}
+
+	public String getEncCardDetails() {
+		return encCardDetails;
+	}
+
+	public void setEncCardDetails(String encCardDetails) {
+		this.encCardDetails = encCardDetails;
 	}
 	
 }

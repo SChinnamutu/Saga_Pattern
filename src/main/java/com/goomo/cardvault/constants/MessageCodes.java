@@ -27,7 +27,7 @@ public class MessageCodes {
 
 	public static final String INVALID_RESPONSE = "502";
 	public static final String INVALID_RESPONSE_MSG = "INVALID_RESPONSE";
-	public static final String INVALID_RESPONSE_DESC = "Internal Response. Please try again later";
+	public static final String INVALID_RESPONSE_DESC = "Invalid Response. Please try again later";
 
 	public static final String BAD_REQUEST = "400";
 	public static final String BAD_REQUEST_MSG = "BAD_REQUEST";

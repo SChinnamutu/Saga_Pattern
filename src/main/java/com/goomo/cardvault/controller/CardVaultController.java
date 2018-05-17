@@ -1,5 +1,7 @@
 package com.goomo.cardvault.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +64,25 @@ public class CardVaultController {
 		log.info("Card Vault :: Get Card Details :: Init");
 		CardDetailsResponse response = cardVaultService.getCardDetails(request);
 		log.info("Card Vault :: Get Card Details :: Ends");
+		return new ResponseEntity<CardDetailsResponse>(response, HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = NamespaceConstants.ENC_CARD_DETAILS, method = RequestMethod.POST)
+	public ResponseEntity<CardDetailsResponse> getEncryptedCardDetails(@RequestBody CardDetailsRequest request) throws Exception {
+		log.info("Card Vault :: Get Enc Card Details :: Init");
+		CardDetailsResponse response = cardVaultService.getEncCardDetails(request);
+		log.info("Card Vault :: Get Enc Card Details :: Ends");
+		return new ResponseEntity<CardDetailsResponse>(response, HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = NamespaceConstants.DELETE_CARD, method = RequestMethod.POST)
+	public ResponseEntity<CardDetailsResponse> deleteCard(@RequestBody CardDetailsRequest request, HttpServletRequest httpServletRequest) throws Exception {
+		log.info("Card Vault :: Delete Card :: Init");
+		String authorization = httpServletRequest.getHeader("Authorization");
+		CardDetailsResponse response = cardVaultService.deleteCard(request, authorization);
+		log.info("Card Vault :: Delete Card :: Ends");
 		return new ResponseEntity<CardDetailsResponse>(response, HttpStatus.OK);
 	}
 	

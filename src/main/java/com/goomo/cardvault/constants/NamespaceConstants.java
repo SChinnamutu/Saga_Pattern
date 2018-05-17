@@ -12,6 +12,8 @@ public class NamespaceConstants {
 	public static final String BASE_URL = "/";
 	public static final String HEALTH_CHECK = "/health-check";
 	public static final String CARD_DETAILS = "/card-details";
+	public static final String ENC_CARD_DETAILS = "/enc-card-details";
 	public static final String STORE_NEW_CARD = "/store-new-card";
+	public static final String DELETE_CARD = "/delete-card";
 	
 }

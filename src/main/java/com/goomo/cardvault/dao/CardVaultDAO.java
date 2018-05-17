@@ -19,4 +19,10 @@ public interface CardVaultDAO {
 	
 	public CardMaster storeCard(CardMaster cardMaster) throws Exception;
 	
+	public void deleteCard(CardMaster cardMaster) throws Exception;
+	
+	public CardMaster fetchCardDetailsByTokenAndUserId(String token, String userId) throws Exception;
+	
+	public CardMaster fetchCardDetailsByUniqueIdAndUserId(String cardUniqueId, String userId) throws Exception; 
+	
 }
