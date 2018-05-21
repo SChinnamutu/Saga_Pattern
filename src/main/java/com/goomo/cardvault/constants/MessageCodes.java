@@ -62,7 +62,8 @@ public class MessageCodes {
 	public static final String NO_RECORDS_DESC = "Sorry, No records found";
 	public static final String NO_RECORDS_MSG = "NO_RECORDS";
 	public static final String CARD_EXPIRY_MSG = "Card validity expired. Please provide valid card details";
-	
+	public static final String INVALID_USER_ID = "Bad Request. User Id is required";
+	public static final String CARD_ALREADY_EXIST = "Sorry, Same card already exists";
 	
 	
 }

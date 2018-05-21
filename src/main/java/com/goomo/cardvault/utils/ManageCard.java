@@ -4,15 +4,14 @@ import java.util.regex.Pattern;
 
 public class ManageCard {
 	
-	public static void main(String args[]) throws Exception{
-		
+	public static void initManageCard() throws Exception{
 		/**
 		 * Card Storage Process
 		 */
 		System.out.println("********************* Init Card Storage Process *********************");
 		String cardNumber = "379863334341009";
 		String nameOnCard = "Manjunath Jakkandi";
-		String cardExpryDate = "04/18";
+		String cardExpryDate = "05/18";
 		System.out.println("cardNumber :: "+cardNumber);
 		System.out.println("nameOnCard :: "+nameOnCard);
 		System.out.println("cardExpryDate :: "+cardExpryDate);
@@ -113,4 +112,10 @@ public class ManageCard {
 		}
 		return cardDetails;
 	}
+	
+	
+	public static void main(String args[]) throws Exception{
+		initManageCard();
+	}
+	
 }

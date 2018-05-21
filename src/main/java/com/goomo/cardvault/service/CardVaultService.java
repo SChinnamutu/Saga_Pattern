@@ -69,14 +69,15 @@ public class CardVaultService {
 	public CardDetailsResponse deleteCard(CardDetailsRequest request, String authorization) throws Exception {
 		log.info("Card Vault :: Delete Card :: request :: "+request.toString());
 		CardDetailsResponse response = new CardDetailsResponse();
-		
 		// verify user id or cust id from jwt token. if exists, decrypt through jwt.
 		if(authorization!=null && !authorization.isEmpty()) {
 			String userId = decryptUserIdByJWT(authorization);
 			if(userId!=null && !userId.isEmpty()) {
 				request.setUserId(userId);
 			}else {
-				throw new IllegalArgumentException(MessageCodes.UN_AUTHORISATION);
+				response.setStatus(MessageCodes.UN_AUTHORISATION);
+				response.setStatusMessage(new StatusMessage(MessageCodes.UN_AUTHORISATION_MSG, MessageCodes.UN_AUTHORISATION_DESC));
+				return response;
 			}
 		}
 		
@@ -267,14 +268,38 @@ public class CardVaultService {
 	
 	public CardDetailsResponse storeNewCard(CardDetailsRequest request) throws Exception{
 		log.info("Card Vault :: Store Card :: request :: "+request.toString());
-		
+		CardDetailsResponse response = new CardDetailsResponse();
 		// validate card details
 		if(request.getEncCardDetails()==null || request.getEncCardDetails().isEmpty()) {
-			throw new IllegalArgumentException(MessageCodes.UN_AUTHORISATION);
+			response.setStatus(MessageCodes.UN_AUTHORISATION);
+			response.setStatusMessage(new StatusMessage(MessageCodes.UN_AUTHORISATION_MSG, MessageCodes.UN_AUTHORISATION_DESC));
+			return response;
+		}
+		if(request.getUserId() == null || request.getUserId().isEmpty()) {
+			response.setStatus(MessageCodes.BAD_REQUEST);
+			response.setStatusMessage(new StatusMessage(MessageCodes.BAD_REQUEST_MSG, MessageCodes.INVALID_USER_ID));
+			return response;
 		}
 		String preDecryptCardDetails = CryptoUtils.decrypt(request.getEncCardDetails(), dataSourceConfig.getDataSource().getAesSecretKey());
 		CardDTO dto = CommonUtils.getCardDetails(preDecryptCardDetails);
 		CommonUtils.validateCardDetails(dto.getCardNumber(), dto.getCardHolderName(), dto.getCardExpiryMonthYear());
+		List<CardMaster> cardMasterList = cardVaultDAO.fetchCardDetailsByUserId(request.getUserId());
+		boolean isDuplicateCardFound = false;
+		String maskedCardNumber = null;
+		if(cardMasterList!=null) {
+			for(CardMaster cardMaster : cardMasterList) {
+				maskedCardNumber = CommonUtils.maskContent(dto.getCardNumber(), false, 6, 4, "X");
+				if(cardMaster.getMaskedCardNumber().equals(maskedCardNumber)) {
+					isDuplicateCardFound = true;
+					break;
+				}
+			}
+		}
+		if(isDuplicateCardFound) {
+			response.setStatus(MessageCodes.BAD_REQUEST);
+			response.setStatusMessage(new StatusMessage(MessageCodes.BAD_REQUEST_MSG, MessageCodes.CARD_ALREADY_EXIST));
+			return response;
+		}
 		
 		// generate random key :: CCKey
 		String ccKey = CommonUtils.generate16DigitCardId();
@@ -297,7 +322,6 @@ public class CardVaultService {
 		// store card details in database
 		CardMaster cardMaster = createCardMaster(request, dto.getCardNumber(), dto.getCardHolderName(), dto.getCardExpiryMonthYear(), part1);
 		CardMaster storedCardMaster = cardVaultDAO.storeCard(cardMaster);
-		CardDetailsResponse response = new CardDetailsResponse();
 		if(cardMaster!=null && cardMaster.getCardId() > 0) {
 			log.info("Card Vault :: Store Card :: CardId :: "+cardMaster.getCardId());
 			response.setStatus(MessageCodes.SUCCESS);
