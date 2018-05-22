@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import com.goomo.cardvault.constants.MessageCodes;
 import com.goomo.cardvault.dto.CardDTO;
-import com.goomo.cardvault.dto.CardDetailsRequest;
 
 
 /**
