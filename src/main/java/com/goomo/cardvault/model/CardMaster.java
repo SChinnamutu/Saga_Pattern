@@ -59,6 +59,9 @@ public class CardMaster implements Serializable {
 	@Column(name = "user_id")
 	private String userId;
 	
+	@Column(name = "card_label")
+	private String cardLabel;
+	
 	@Column(name = "created_by")
 	private String createdBy;
 	
@@ -197,6 +200,13 @@ public class CardMaster implements Serializable {
 	public void setCardExpiryDate(String cardExpiryDate) {
 		this.cardExpiryDate = cardExpiryDate;
 	}
-	
+
+	public String getCardLabel() {
+		return cardLabel;
+	}
+
+	public void setCardLabel(String cardLabel) {
+		this.cardLabel = cardLabel;
+	}
 	
 }

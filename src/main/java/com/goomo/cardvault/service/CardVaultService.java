@@ -227,6 +227,9 @@ public class CardVaultService {
 			card.setCardIssuedBy(cardMaster.getCardIssuedBy());
 			card.setCardType(cardMaster.getCardType());
 			card.setCardExpired(DateUtils.isCardExpired(cardMaster.getCardExpiryDate(), new Date()));
+			if(cardMaster.getCardLabel()!=null && !cardMaster.getCardLabel().isEmpty()) {
+				card.setCardLabel(cardMaster.getCardLabel());
+			}
 			if(isAddEncCardDetails) {
 				card.setEncCardDetails(cardMaster.getEncryptedCardDetails());
 			}
@@ -360,7 +363,9 @@ public class CardVaultService {
 		cardMaster.setUserId(request.getUserId());
 		cardMaster.setCreatedBy(request.getTxnBy());
 		cardMaster.setCardExpiryDate(DateUtils.getCardExpiryDateFormat(cardExpiryDate));
-		
+		if(request.getCardLabel()!=null && !request.getCardLabel().isEmpty()) {
+			cardMaster.setCardLabel(request.getCardLabel());
+		}
 		Date currentDateTime = new Date();
 		String createdDateTimeStr = DateUtils.convertDateToString(currentDateTime);
 		cardMaster.setCreatedAt(createdDateTimeStr);

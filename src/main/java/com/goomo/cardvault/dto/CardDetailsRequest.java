@@ -14,6 +14,7 @@ public class CardDetailsRequest implements Serializable{
 	private boolean pemKey;
 	private String pesToken;
 	private String cmk;
+	private String cardLabel;
 	
 	public CardDetailsRequest() {
 		super();
@@ -81,6 +82,14 @@ public class CardDetailsRequest implements Serializable{
 
 	public void setCmk(String cmk) {
 		this.cmk = cmk;
+	}
+	
+	public String getCardLabel() {
+		return cardLabel;
+	}
+
+	public void setCardLabel(String cardLabel) {
+		this.cardLabel = cardLabel;
 	}
 
 	@Override
