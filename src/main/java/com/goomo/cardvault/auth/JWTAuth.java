@@ -105,11 +105,11 @@ public class JWTAuth {
 	    				.sign(algo);
 	    		log.info("Card Vault :: JWTAuth :: encryptToken :: encryptedToken :: "+encryptedToken);
 	    	}catch(UnsupportedEncodingException e) {
-	    		e.printStackTrace();
+	    		log.error(e.getMessage());
 	    	}catch (JWTCreationException e1){
-	    		e1.printStackTrace();
+	    		log.error(e1.getMessage());
 	    	}catch(Exception ex) {
-	    		ex.printStackTrace();
+	    		log.error(ex.getMessage());
 	    	}
     		return encryptedToken;
 	}

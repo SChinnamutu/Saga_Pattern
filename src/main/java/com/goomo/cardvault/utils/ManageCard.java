@@ -82,13 +82,18 @@ public class ManageCard {
 		
 		// decrypt card
 		String decCardDetails = decryptEncCardDetails(encCardDetails, decCCKey);
-		System.out.println("decCardDetails :: "+decCardDetails);
+		if(decCardDetails!=null && decCardDetails.isEmpty()) {
+			System.out.println("decCardDetails :: "+decCardDetails);
+			
+			// split the decrypted card details
+			String cardDetailsArr[] = decCardDetails.split(Pattern.quote("|"));
+			System.out.println("cardNumber :: "+ cardDetailsArr[0]);
+			System.out.println("nameOnCard :: "+ cardDetailsArr[1]);
+			System.out.println("cardExpryDate :: "+ cardDetailsArr[2]);
+		}else {
+			System.out.println("Internal Server Error");
+		}
 		
-		// split the decrypted card details
-		String cardDetailsArr[] = decCardDetails.split(Pattern.quote("|"));
-		System.out.println("cardNumber :: "+ cardDetailsArr[0]);
-		System.out.println("nameOnCard :: "+ cardDetailsArr[1]);
-		System.out.println("cardExpryDate :: "+ cardDetailsArr[2]);
 		System.out.println("********************* Ends Card Retrieval Process *********************\n\n");
 	}
 	
@@ -98,7 +103,7 @@ public class ManageCard {
 			String cardDetailsFormat= cardNumber +"|"+nameOnCard + "|" + expiryDate;
 			encCardDetails = CryptoUtils.encrypt(cardDetailsFormat, ccKey);
 		}catch(Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		return encCardDetails;
 	}
@@ -108,7 +113,7 @@ public class ManageCard {
 		try {
 			cardDetails = CryptoUtils.decrypt(encCardDetails, ccKey);
 		}catch(Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		return cardDetails;
 	}

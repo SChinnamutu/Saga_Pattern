@@ -119,7 +119,7 @@ public class DateUtils {
     		SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
 			date= sdf.parse(dateStr);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.error("convertStringToDate" ,e);
 		}
     	return date;
     }
@@ -135,7 +135,7 @@ public class DateUtils {
 			toDateValue = simpleDateFormat.parse(toDate);
 			isValid = toDateValue.before(fromDateValue);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.error("convertStringToDate" ,e);
 			return true;
 		}
 		return isValid;
