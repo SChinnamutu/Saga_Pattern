@@ -1,16 +1,14 @@
 package com.goomo.cardvault.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -31,8 +29,8 @@ public class CardMaster implements Serializable {
 	private Long cardId;
 	
 	
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "cardMaster", cascade = CascadeType.ALL)
-	private List<CCKeyMaster> cckeyMasterList;
+	@OneToOne(mappedBy = "cardMaster", cascade = CascadeType.ALL)
+	private CCKeyMaster cckeyMaster;
 	
 	
 	@Column(name = "card_token")
@@ -185,12 +183,12 @@ public class CardMaster implements Serializable {
 		this.updatedAt = updatedAt;
 	}
 
-	public List<CCKeyMaster> getCckeyMasterList() {
-		return cckeyMasterList;
+	public CCKeyMaster getCckeyMaster() {
+		return cckeyMaster;
 	}
 
-	public void setCckeyMasterList(List<CCKeyMaster> cckeyMasterList) {
-		this.cckeyMasterList = cckeyMasterList;
+	public void setCckeyMaster(CCKeyMaster cckeyMaster) {
+		this.cckeyMaster = cckeyMaster;
 	}
 
 	public String getCardExpiryDate() {

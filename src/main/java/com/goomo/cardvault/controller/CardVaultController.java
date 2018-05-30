@@ -24,6 +24,11 @@ import com.goomo.cardvault.service.CardVaultService;
 import io.swagger.annotations.Api;
 import springfox.documentation.annotations.ApiIgnore;
 
+/**
+ * This controller is used to define all the required API's for card vault.
+ * @author Manjunath Jakkandi
+ *
+ */
 @RestController
 @RequestMapping(value = NamespaceConstants.BASE_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "CardVault Controller", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,7 +43,7 @@ public class CardVaultController {
 	
 	/**
 	 * This method used to check the card vault application status
-	 * 
+	 * @author Manjunath Jakkandi
 	 * @return
 	 * @throws Exception
 	 */
@@ -58,7 +63,13 @@ public class CardVaultController {
 		return new ResponseEntity<BaseResponse>(response, HttpStatus.OK);
 	}
 	
-	
+	/**
+	 * This API is used to get meta data of card details.
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = NamespaceConstants.CARD_DETAILS, method = RequestMethod.POST)
 	public ResponseEntity<CardDetailsResponse> getCardDetails(@RequestBody CardDetailsRequest request) throws Exception {
 		log.info("Card Vault :: Get Card Details :: Init");
@@ -68,6 +79,14 @@ public class CardVaultController {
 	}
 	
 	
+	/**
+	 * This API is used to get encrypted card details. Without the keys, it's useless.
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiIgnore
 	@RequestMapping(value = NamespaceConstants.ENC_CARD_DETAILS, method = RequestMethod.POST)
 	public ResponseEntity<CardDetailsResponse> getEncryptedCardDetails(@RequestBody CardDetailsRequest request) throws Exception {
 		log.info("Card Vault :: Get Enc Card Details :: Init");
@@ -76,7 +95,14 @@ public class CardVaultController {
 		return new ResponseEntity<CardDetailsResponse>(response, HttpStatus.OK);
 	}
 	
-	
+	/**
+	 * This API is used to delete the card for specific card token.
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @param httpServletRequest
+	 * @return success for successful deletion of card details. Else, an error code along with a respective message.
+	 * @throws Exception
+	 */
 	@RequestMapping(value = NamespaceConstants.DELETE_CARD, method = RequestMethod.POST)
 	public ResponseEntity<CardDetailsResponse> deleteCard(@RequestBody CardDetailsRequest request, HttpServletRequest httpServletRequest) throws Exception {
 		log.info("Card Vault :: Delete Card :: Init");
@@ -86,7 +112,13 @@ public class CardVaultController {
 		return new ResponseEntity<CardDetailsResponse>(response, HttpStatus.OK);
 	}
 	
-	
+	/**
+	 * This class is used to store new card details.
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = NamespaceConstants.STORE_NEW_CARD, method = RequestMethod.POST)
 	public ResponseEntity<CardDetailsResponse> storeCard(@RequestBody CardDetailsRequest request) throws Exception {
 		log.info("Card Vault :: Store Card :: Init");
@@ -95,7 +127,36 @@ public class CardVaultController {
 		return new ResponseEntity<CardDetailsResponse>(response, HttpStatus.OK);
 	}
 	
+	/**
+	 * This class is used to get CCKey1 stored in database.
+	 * @param Manjunath Jakkandi
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiIgnore
+	@RequestMapping(value = NamespaceConstants.CCKEY_PART1, method = RequestMethod.POST)
+	public ResponseEntity<CardDetailsResponse> getCCKey1(@RequestBody CardDetailsRequest request) throws Exception {
+		log.info("Card Vault :: getCCKey1 :: Init");
+		CardDetailsResponse response = cardVaultService.getECCKey1(request);
+		log.info("Card Vault :: getCCKey1 :: Ends");
+		return new ResponseEntity<CardDetailsResponse>(response, HttpStatus.OK);
+	}
 	
+	/**
+	 * This API is used to retrieve card details for specific card belongs to specific user.
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiIgnore
+	@RequestMapping(value = NamespaceConstants.RETRIEVE_CARD_DATAILS, method = RequestMethod.POST)
+	public ResponseEntity<CardDetailsResponse> retrieveCardDetails(@RequestBody CardDetailsRequest request) throws Exception {
+		log.info("Card Vault :: retrieveCardDetails :: Init");
+		CardDetailsResponse response = cardVaultService.retrieveCardDetails(request);
+		log.info("Card Vault :: retrieveCardDetails :: Ends");
+		return new ResponseEntity<CardDetailsResponse>(response, HttpStatus.OK);
+	}
 	
 	
 }

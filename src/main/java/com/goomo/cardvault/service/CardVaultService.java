@@ -74,6 +74,7 @@ public class CardVaultService {
 			if(userId!=null && !userId.isEmpty()) {
 				request.setUserId(userId);
 			}else {
+				log.info("Card Vault :: Delete Card :: UN_AUTHORISATION");
 				response.setStatus(MessageCodes.UN_AUTHORISATION);
 				response.setStatusMessage(new StatusMessage(MessageCodes.UN_AUTHORISATION_MSG, MessageCodes.UN_AUTHORISATION_DESC));
 				return response;
@@ -97,11 +98,20 @@ public class CardVaultService {
 		return response;
 	}
 	
+	
+	/**
+	 * This method is used to delete the card for specific card token and specific user. It's hard delete process.
+	 * @author Manjunath Jakkandi
+	 * @param cardMaster
+	 * @param response
+	 * @throws Exception
+	 */
 	public void processDeleteCard(CardMaster cardMaster, CardDetailsResponse response) throws Exception {
 		if(cardMaster!=null) {
 			cardVaultDAO.deleteCard(cardMaster);
 			response.setStatus(MessageCodes.SUCCESS);
 			response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
+			log.info("Card Vault :: Delete Card :: processDeleteCard :: "+response);
 		}else {
 			createSearchErrorResponse(response);
 		}
@@ -249,6 +259,7 @@ public class CardVaultService {
 		}
 		response.setStatus(MessageCodes.INVALID_RESPONSE);
 		response.setStatusMessage(new StatusMessage(MessageCodes.NO_RECORDS_MSG, MessageCodes.NO_RECORDS_DESC));
+		log.info("Card Vault :: createSearchErrorResponse :: NO_RECORDS_DESC");
 		return response;
 	}
 	
@@ -268,29 +279,32 @@ public class CardVaultService {
 	}
 	
 	
+	/**
+	 * This method is used to store new card in database. Which includes encryptiion process and protection of keys used.
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
 	public CardDetailsResponse storeNewCard(CardDetailsRequest request) throws Exception{
 		log.info("Card Vault :: Store Card :: request :: "+request.toString());
 		CardDetailsResponse response = new CardDetailsResponse();
-		// validate card details
-		if(request.getEncCardDetails()==null || request.getEncCardDetails().isEmpty()) {
-			response.setStatus(MessageCodes.UN_AUTHORISATION);
-			response.setStatusMessage(new StatusMessage(MessageCodes.UN_AUTHORISATION_MSG, MessageCodes.UN_AUTHORISATION_DESC));
-			return response;
-		}
+		
+		// validate input params : user id and card details.
 		if(request.getUserId() == null || request.getUserId().isEmpty()) {
 			response.setStatus(MessageCodes.BAD_REQUEST);
 			response.setStatusMessage(new StatusMessage(MessageCodes.BAD_REQUEST_MSG, MessageCodes.INVALID_USER_ID));
 			return response;
 		}
-		String preDecryptCardDetails = CryptoUtils.decrypt(request.getEncCardDetails(), dataSourceConfig.getDataSource().getAesSecretKey());
-		CardDTO dto = CommonUtils.getCardDetails(preDecryptCardDetails);
-		CommonUtils.validateCardDetails(dto.getCardNumber(), dto.getCardHolderName(), dto.getCardExpiryMonthYear());
+		CommonUtils.validateCardDetails(request.getCardNumber(), request.getCardHolderName(), request.getCardExpiryDate());
+		
+		// check if already card exists for same suer
 		List<CardMaster> cardMasterList = cardVaultDAO.fetchCardDetailsByUserId(request.getUserId());
 		boolean isDuplicateCardFound = false;
 		String maskedCardNumber = null;
 		if(cardMasterList!=null) {
 			for(CardMaster cardMaster : cardMasterList) {
-				maskedCardNumber = CommonUtils.maskContent(dto.getCardNumber(), false, 6, 4, "X");
+				maskedCardNumber = CommonUtils.maskContent(request.getCardNumber(), false, 6, 4, "X");
 				if(cardMaster.getMaskedCardNumber().equals(maskedCardNumber)) {
 					isDuplicateCardFound = true;
 					break;
@@ -308,7 +322,7 @@ public class CardVaultService {
 		log.info("Card Vault :: Store Card :: ccKey :: "+ccKey);
 		
 		// encrypt card details with CCKey
-		String encCardDetails = createEncCardDetails(dto.getCardNumber(), dto.getCardHolderName(), dto.getCardExpiryMonthYear(), ccKey);
+		String encCardDetails = createEncCardDetails(request.getCardNumber(), request.getCardHolderName(), request.getCardExpiryDate(), ccKey);
 		log.info("Card Vault :: Store Card :: encCardDetails :: "+encCardDetails);
 		
 		// encrypt cckey with cmk
@@ -318,14 +332,13 @@ public class CardVaultService {
 		// split the encCCKey into two parts.
 		String part1 = encCCKey.substring(0, (encCCKey.length()/2));
 		String part2 = encCCKey.substring((encCCKey.length()/2));
-		log.info("Card Vault :: Store Card :: part1 :: "+part1);
-		log.info("Card Vault :: Store Card :: part2 :: "+part2);
+		log.info("Card Vault :: Store Card :: encCCKey part1 :: "+part1);
+		log.info("Card Vault :: Store Card :: encCCKey part2 :: "+part2);
 		
 		// store card details in database
-		CardMaster cardMaster = createCardMaster(request, dto.getCardNumber(), dto.getCardHolderName(), dto.getCardExpiryMonthYear(), part1);
+		CardMaster cardMaster = createCardMaster(request, encCardDetails, request.getCardNumber(), request.getCardExpiryDate(), part1);
 		CardMaster storedCardMaster = cardVaultDAO.storeCard(cardMaster);
 		if(cardMaster!=null && cardMaster.getCardId() > 0) {
-			log.info("Card Vault :: Store Card :: CardId :: "+cardMaster.getCardId());
 			response.setStatus(MessageCodes.SUCCESS);
 			response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
 			response.setCckeyPart2(part2);
@@ -339,13 +352,58 @@ public class CardVaultService {
 			response.setStatus(MessageCodes.INVALID_RESPONSE);
 			response.setStatusMessage(new StatusMessage(MessageCodes.INVALID_RESPONSE_MSG, MessageCodes.INVALID_RESPONSE_DESC));
 		}
-		
 		log.info("Card Vault :: Store Card :: response :: "+response.toString());
 		return response;
 	}
 	
 	
-	private CardMaster createCardMaster(CardDetailsRequest request, String cardNumber, String nameOnCard, 
+	/**
+	 * This method is used to get the ECCKey part 1 of encrypted key
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public CardDetailsResponse getECCKey1(CardDetailsRequest request) throws Exception {
+		log.info("Card Vault :: getECCKey1 :: request :: "+request.toString());
+		CardDetailsResponse response = new CardDetailsResponse();
+		CardMaster cardMaster = null;
+		if(request.getCardToken()!=null && !request.getCardToken().isEmpty()) {
+			log.info("Card Vault :: Get Card Details :: By token :: "+request.getCardToken());
+			cardMaster = cardVaultDAO.fetchCardDetailsByToken(request.getCardToken());
+		}
+		if(request.getCardUniqueId()!=null && !request.getCardUniqueId().isEmpty()) {
+			log.info("Card Vault :: Get Card Details :: By unque card id :: "+request.getCardUniqueId());
+			cardMaster = cardVaultDAO.fetchCardDetailsByUniqueId(request.getCardUniqueId());
+		}
+		if(cardMaster!=null && cardMaster.getCckeyMaster()!=null) {
+			CCKeyMaster cckeyMaster = cardMaster.getCckeyMaster();
+			response.setCckeyPart1(cckeyMaster.getCckeyPart1());
+			response.setCardUniqueId(cckeyMaster.getUniqueCardId());
+			response.setToken(cckeyMaster.getCardToken());
+			response.setStatus(MessageCodes.SUCCESS);
+			response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
+		}else {
+			response.setStatus(MessageCodes.BAD_REQUEST);
+			response.setStatusMessage(new StatusMessage(MessageCodes.BAD_REQUEST_MSG, MessageCodes.NO_RECORDS_MSG));
+		}
+		log.info("Card Vault :: getECCKey1 :: response :: "+response.toString());
+		return response;
+	}
+	
+	
+	/**
+	 * This method is used to create the card object before storing the details in database.
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @param finalEncCardDetails
+	 * @param cardNumber
+	 * @param cardExpiryDate
+	 * @param ccKeyPart1
+	 * @return
+	 * @throws Exception
+	 */
+	private CardMaster createCardMaster(CardDetailsRequest request, String finalEncCardDetails, String cardNumber, 
 			String cardExpiryDate, String ccKeyPart1) throws Exception{
 		
 		// card master object
@@ -354,7 +412,7 @@ public class CardVaultService {
 		cardMaster.setCardToken(cardToken);
 		String cardUniqueId = CommonUtils.generate36DigitUniqueId();
 		cardMaster.setUniqueCardId(cardUniqueId);
-		cardMaster.setEncryptedCardDetails(request.getEncCardDetails());
+		cardMaster.setEncryptedCardDetails(finalEncCardDetails);
 		cardMaster.setMaskedCardNumber(CommonUtils.maskContent(cardNumber, false, 6, 4, "X"));
 		cardMaster.setCardType("CREDIT");
 		cardMaster.setCardIssuedBy("MASTREO");
@@ -381,23 +439,121 @@ public class CardVaultService {
 		ccKeyMaster.setCreatedAt(createdDateTimeStr);
 		
 		// set cckey master object to card master
-		List<CCKeyMaster> ccKeyMasterList = new ArrayList<CCKeyMaster>();
-		ccKeyMasterList.add(ccKeyMaster);
-		cardMaster.setCckeyMasterList(ccKeyMasterList);
+		cardMaster.setCckeyMaster(ccKeyMaster);
 		
 		return cardMaster;
 	}
 	
+	
+	/**
+	 * This method is used to encrypt the card details with cckey
+	 * @author Manjunath Jakkandi
+	 * @param cardNumber
+	 * @param nameOnCard
+	 * @param expiryDate
+	 * @param ccKey
+	 * @return
+	 * @throws Exception
+	 */
 	private String createEncCardDetails(String cardNumber, String nameOnCard, String expiryDate, String ccKey) throws Exception{
 		String encCardDetails = null;
-		String cardDetailsFormat= cardNumber +"|"+nameOnCard + "|" + expiryDate;
+		String cardDetailsFormat= cardNumber +"^^"+nameOnCard + "^^" + expiryDate;
 		encCardDetails = CryptoUtils.encrypt(cardDetailsFormat, ccKey);
 		return encCardDetails;
 	}
 	
-	private String decryptEncCardDetails(String encCardDetails, String ccKey) throws Exception{
-		String	cardDetails = CryptoUtils.decrypt(encCardDetails, ccKey);
-		return cardDetails;
+	
+	/**
+	 * This method is used to retrieve card details
+	 * @author Manjunath Jakkandi
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public CardDetailsResponse retrieveCardDetails(CardDetailsRequest request) throws Exception {
+		
+		String cckeyPart1 = null;
+		String cckeyPart2 = null;
+		String encCardDetails = null;
+		String cmk = null;
+		
+		// Get part1 of ecckey
+		CardDetailsResponse response = getECCKey1(request);
+		if(response!=null && response.getStatus().equalsIgnoreCase(MessageCodes.SUCCESS)) {
+			cckeyPart1 = response.getCckeyPart1();
+			log.info("CardVaultService :: retrieveCardDetails :: cckeyPart1 :: "+cckeyPart1);
+		}else {
+			return response;
+		}
+		
+		// get part2 of ecckey
+		if(request.getCckeyPart2()!=null && !request.getCckeyPart2().isEmpty()) {
+			cckeyPart2 = request.getCckeyPart2();
+			log.info("CardVaultService :: retrieveCardDetails :: cckeyPart2 :: "+cckeyPart2);
+		}else {
+			return invalidCardError(response);
+		}
+		
+		// get user cmk
+		if(request.getCmk()!=null && !request.getCmk().isEmpty()) {
+			cmk = request.getCmk();
+			log.info("CardVaultService :: retrieveCardDetails :: cmk :: "+cmk);
+		}else {
+			return invalidCardError(response);
+		}
+		
+		// get encrypted card details
+		CardDetailsResponse encCardDetailsResponse = getEncCardDetails(request);
+		if(encCardDetailsResponse!=null && encCardDetailsResponse.getStatus().equalsIgnoreCase(MessageCodes.SUCCESS)) {
+			CardDTO cardDTO  = encCardDetailsResponse.getCard();
+			encCardDetails = cardDTO.getEncCardDetails();
+			log.info("CardVaultService :: retrieveCardDetails :: encCardDetails :: "+encCardDetails);
+		}else {
+			return encCardDetailsResponse;
+		}
+		
+		// run the algorithm to decrypt valid card details.
+		if(cckeyPart1!=null && cckeyPart2!=null && encCardDetails!=null && request.getCmk()!=null && !request.getCmk().isEmpty()) {
+			// merge part1 and part2 >> ecckey
+			String encCCKey = cckeyPart1 + cckeyPart2;
+			log.info("CardVaultService :: retrieveCardDetails :: encCCKey :: "+encCCKey);
+			
+			// decrypt ecckey from cmk >> cckey
+			String ccKey = CryptoUtils.decrypt(encCCKey, request.getCmk());
+			log.info("CardVaultService :: retrieveCardDetails :: ccKey :: "+ccKey);
+			
+			// decrypt card from cckey
+			String decCardDetails = CryptoUtils.decrypt(encCardDetails, ccKey);
+			if(decCardDetails!=null && !decCardDetails.isEmpty()) {
+				CardDTO decryptedCardDTO = CommonUtils.getCardDetails(decCardDetails);
+				CardDetailsResponse newResponse = new CardDetailsResponse();
+				newResponse.setCardNumber(decryptedCardDTO.getCardNumber());
+				newResponse.setCardHolderName(decryptedCardDTO.getCardHolderName());
+				newResponse.setCardExpiryDate(decryptedCardDTO.getCardExpiryMonthYear());
+				newResponse.setStatus(MessageCodes.SUCCESS);
+				newResponse.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
+				log.info("CardVaultService :: retrieveCardDetails :: successfull");
+				return newResponse;
+			}else {
+				return invalidCardError(response);
+			}
+		}else {
+			return invalidCardError(response);
+		}
+	}
+	
+	
+	/**
+	 * This method is used to create the error response if condition meet with invalid or not found.
+	 * @author Manjunath Jakkandi
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	public CardDetailsResponse invalidCardError(CardDetailsResponse response) throws Exception{
+		response.setStatus(MessageCodes.BAD_REQUEST);
+		response.setStatusMessage(new StatusMessage(MessageCodes.NO_RECORDS_MSG, MessageCodes.INVALID_CARD));
+		return response;
 	}
 	
 }

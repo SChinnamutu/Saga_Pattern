@@ -2,6 +2,11 @@ package com.goomo.cardvault.dto;
 
 import java.io.Serializable;
 
+/**
+ * This class used to define the meta card details
+ * @author Manjunath Jakkandi
+ *
+ */
 public class CardDTO implements Serializable{
 
 	private static final long serialVersionUID = 1L;

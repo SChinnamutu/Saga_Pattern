@@ -62,6 +62,5 @@ public class CardVaultDAOImpl implements CardVaultDAO {
 		CardMaster cardMaster = cardMasterRepository.findByUniqueCardIdAndUserId(cardUniqueId, userId);
 		return cardMaster;
 	}
-	
 
 }

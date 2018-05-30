@@ -16,6 +16,11 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+/**
+ * This class will be invoked when the spring container loads and configure necessary settings.
+ * @author Manjunath Jakkandi
+ *
+ */
 @EntityScan(basePackages = { "com.goomo.cardvault.model" })
 @EnableJpaRepositories(basePackages = { "com.goomo.cardvault.repository" })
 @SpringBootApplication

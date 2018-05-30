@@ -64,6 +64,7 @@ public class MessageCodes {
 	public static final String CARD_EXPIRY_MSG = "Card validity expired. Please provide valid card details";
 	public static final String INVALID_USER_ID = "Bad Request. User Id is required";
 	public static final String CARD_ALREADY_EXIST = "Sorry, Same card already exists";
+	public static final String INVALID_CARD = "Sorry, no card details found";
 	
 	
 }

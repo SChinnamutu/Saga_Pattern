@@ -10,8 +10,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 /**
  * This class used to represent cckey master table in database. encrypted keys are stored here. These keys required to decrypt card details.
@@ -30,8 +32,9 @@ public class CCKeyMaster implements Serializable {
 	@Column(name = "cckey_id")
 	private Long cckeyId;
 	
-	@ManyToOne(optional = true, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-	@JoinColumn(name = "card_id", referencedColumnName = "card_id" )
+	@OneToOne(optional = true, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+	@JoinColumn(name = "card_id")
+	@JsonBackReference
 	private CardMaster cardMaster;
 	
 	@Column(name = "card_token")

@@ -87,9 +87,7 @@ public class JWTAuth {
 	    		// expiry date for jwt token
 	    		Date expiryDate = new Date();
 	    		int min = expiryDate.getMinutes()+60;
-	    		System.out.println("expiryDate >>> "+expiryDate);
 	    		expiryDate.setMinutes(min);
-	    		System.out.println("expiryDate >>> "+expiryDate);
 	    		
 	    		// create jwt token
 	    		encryptedToken = JWT.create()
