@@ -21,6 +21,7 @@ public class CardDTO implements Serializable{
 	private String encCardDetails;
 	private boolean isCardExpired;
 	private String cardLabel;
+	private String cardBrand;
 	
 	private String cardNumber;
 	private String cardExpiryMonthYear;
@@ -147,14 +148,22 @@ public class CardDTO implements Serializable{
 	public void setCardLabel(String cardLabel) {
 		this.cardLabel = cardLabel;
 	}
+	
+	public String getCardBrand() {
+		return cardBrand;
+	}
+
+	public void setCardBrand(String cardBrand) {
+		this.cardBrand = cardBrand;
+	}
 
 	@Override
 	public String toString() {
 		return "CardDTO [userId=" + userId + ", cardToken=" + cardToken + ", uniqueCardId=" + uniqueCardId
 				+ ", cardStatus=" + cardStatus + ", maskedCardNumber=" + maskedCardNumber + ", cardIssuedBy="
 				+ cardIssuedBy + ", cardType=" + cardType + ", encCardDetails=" + encCardDetails + ", isCardExpired="
-				+ isCardExpired + ", cardLabel=" + cardLabel + ", cardNumber=" + cardNumber + ", cardExpiryMonthYear="
-				+ cardExpiryMonthYear + ", cardHolderName=" + cardHolderName + ", toString()=" + super.toString() + "]";
+				+ isCardExpired + ", cardLabel=" + cardLabel + ", cardBrand=" + cardBrand + ", cardNumber=" + cardNumber
+				+ ", cardExpiryMonthYear=" + cardExpiryMonthYear + ", cardHolderName=" + cardHolderName + "]";
 	}
 	
 }

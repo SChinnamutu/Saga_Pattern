@@ -60,6 +60,9 @@ public class CardMaster implements Serializable {
 	@Column(name = "card_label")
 	private String cardLabel;
 	
+	@Column(name = "card_brand")
+	private String cardBrand;
+	
 	@Column(name = "created_by")
 	private String createdBy;
 	
@@ -150,7 +153,7 @@ public class CardMaster implements Serializable {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-
+	
 	public String getCreatedBy() {
 		return createdBy;
 	}
@@ -206,5 +209,12 @@ public class CardMaster implements Serializable {
 	public void setCardLabel(String cardLabel) {
 		this.cardLabel = cardLabel;
 	}
-	
+
+	public String getCardBrand() {
+		return cardBrand;
+	}
+
+	public void setCardBrand(String cardBrand) {
+		this.cardBrand = cardBrand;
+	}
 }

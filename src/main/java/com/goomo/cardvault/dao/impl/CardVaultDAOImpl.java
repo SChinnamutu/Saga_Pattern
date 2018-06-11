@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.goomo.cardvault.dao.CardVaultDAO;
+import com.goomo.cardvault.model.BinMaster;
 import com.goomo.cardvault.model.CardMaster;
+import com.goomo.cardvault.repository.BinMasterReposiroty;
 import com.goomo.cardvault.repository.CardMasterRepository;
 
 /**
@@ -21,6 +23,9 @@ public class CardVaultDAOImpl implements CardVaultDAO {
 	
 	@Autowired
 	private CardMasterRepository cardMasterRepository;
+	
+	@Autowired
+	private BinMasterReposiroty binMasterReposiroty;
 	
 	@Override
 	public List<CardMaster> fetchCardDetailsByUserId(String userId) throws Exception {
@@ -61,6 +66,12 @@ public class CardVaultDAOImpl implements CardVaultDAO {
 	public CardMaster fetchCardDetailsByUniqueIdAndUserId(String cardUniqueId, String userId) throws Exception {
 		CardMaster cardMaster = cardMasterRepository.findByUniqueCardIdAndUserId(cardUniqueId, userId);
 		return cardMaster;
+	}
+
+	@Override
+	public BinMaster findByBinVal(String binValue) throws Exception {
+		BinMaster binMaser = binMasterReposiroty.findByBinVal(binValue);
+		return binMaser;
 	}
 
 }

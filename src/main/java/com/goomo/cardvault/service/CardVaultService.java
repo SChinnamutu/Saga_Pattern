@@ -17,6 +17,7 @@ import com.goomo.cardvault.dto.CardDTO;
 import com.goomo.cardvault.dto.CardDetailsRequest;
 import com.goomo.cardvault.dto.CardDetailsResponse;
 import com.goomo.cardvault.dto.StatusMessage;
+import com.goomo.cardvault.model.BinMaster;
 import com.goomo.cardvault.model.CCKeyMaster;
 import com.goomo.cardvault.model.CardMaster;
 import com.goomo.cardvault.utils.CommonUtils;
@@ -233,8 +234,15 @@ public class CardVaultService {
 			card.setCardToken(cardMaster.getCardToken());
 			card.setCardStatus(cardMaster.getCardStatus());
 			card.setMaskedCardNumber(cardMaster.getMaskedCardNumber());
-			card.setCardIssuedBy(cardMaster.getCardIssuedBy());
-			card.setCardType(cardMaster.getCardType());
+			if(cardMaster.getCardIssuedBy()!=null) {
+				card.setCardIssuedBy(cardMaster.getCardIssuedBy());
+			}
+			if(cardMaster.getCardBrand()!=null) {
+				card.setCardBrand(cardMaster.getCardBrand());
+			}
+			if(cardMaster.getCardType()!=null) {
+				card.setCardType(cardMaster.getCardType());
+			}
 			card.setCardExpired(DateUtils.isCardExpired(cardMaster.getCardExpiryDate(), new Date()));
 			if(cardMaster.getCardLabel()!=null && !cardMaster.getCardLabel().isEmpty()) {
 				card.setCardLabel(cardMaster.getCardLabel());
@@ -337,7 +345,21 @@ public class CardVaultService {
 		
 		// store card details in database
 		CardMaster cardMaster = createCardMaster(request, encCardDetails, request.getCardNumber(), request.getCardExpiryDate(), part1);
+		// get bin lookup details.
+		BinMaster binMaster = cardVaultDAO.findByBinVal(request.getCardNumber().substring(0, 6));
+		if(binMaster!=null) {
+			if(binMaster.getCardType()!=null) {
+				cardMaster.setCardType(binMaster.getCardType());
+			}
+			if(binMaster.getCardIssuedBy()!=null) {
+				cardMaster.setCardIssuedBy(binMaster.getCardIssuedBy());
+			}
+			if(binMaster.getBrandType()!=null) {
+				cardMaster.setCardBrand(binMaster.getBrandType());
+			}
+		}
 		CardMaster storedCardMaster = cardVaultDAO.storeCard(cardMaster);
+		
 		if(cardMaster!=null && cardMaster.getCardId() > 0) {
 			response.setStatus(MessageCodes.SUCCESS);
 			response.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
@@ -414,8 +436,6 @@ public class CardVaultService {
 		cardMaster.setUniqueCardId(cardUniqueId);
 		cardMaster.setEncryptedCardDetails(finalEncCardDetails);
 		cardMaster.setMaskedCardNumber(CommonUtils.maskContent(cardNumber, false, 6, 4, "X"));
-		cardMaster.setCardType("CREDIT");
-		cardMaster.setCardIssuedBy("MASTREO");
 		cardMaster.setCardStatus("A");
 		cardMaster.setUserId(request.getUserId());
 		cardMaster.setCreatedBy(request.getTxnBy());
