@@ -51,3 +51,20 @@ WITH (
   OIDS=FALSE
 );
 
+CREATE TABLE public.bin_master
+(
+  bin_id integer NOT NULL DEFAULT nextval('bin_master_bin_id_seq'::regclass),
+  bin_val character varying(10),
+  card_type character varying(10),
+  brand_type character varying(255),
+  card_issued_by character varying(255),
+  country_id character varying(255),
+  created_at character varying(255),
+  created_by character varying(255),
+  updated_at character varying(255),
+  updated_by character varying(255)
+)
+WITH (
+  OIDS=FALSE
+);
+
