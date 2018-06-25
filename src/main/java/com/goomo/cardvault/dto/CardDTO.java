@@ -22,7 +22,7 @@ public class CardDTO implements Serializable{
 	private boolean isCardExpired;
 	private String cardLabel;
 	private String cardBrand;
-	
+	private String brandImageURL;
 	private String cardNumber;
 	private String cardExpiryMonthYear;
 	private String cardHolderName;
@@ -155,6 +155,14 @@ public class CardDTO implements Serializable{
 
 	public void setCardBrand(String cardBrand) {
 		this.cardBrand = cardBrand;
+	}
+	
+	public String getBrandImageURL() {
+		return brandImageURL;
+	}
+
+	public void setBrandImageURL(String brandImageURL) {
+		this.brandImageURL = brandImageURL;
 	}
 
 	@Override
