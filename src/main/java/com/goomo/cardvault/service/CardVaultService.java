@@ -225,7 +225,7 @@ public class CardVaultService {
 	 * @param cardMaster
 	 * @return
 	 */
-	public CardDTO processCardDetails(CardMaster cardMaster, boolean isAddEncCardDetails) {
+	public CardDTO processCardDetails(CardMaster cardMaster, boolean isAddEncCardDetails) throws Exception{
 		CardDTO card = null;
 		if(cardMaster!=null) {
 			card = new CardDTO();
@@ -239,6 +239,7 @@ public class CardVaultService {
 			}
 			if(cardMaster.getCardBrand()!=null) {
 				card.setCardBrand(cardMaster.getCardBrand());
+				card.setBrandImageURL(getCardBrandImageURL(cardMaster.getCardBrand()));
 			}
 			if(cardMaster.getCardType()!=null) {
 				card.setCardType(cardMaster.getCardType());
@@ -252,6 +253,27 @@ public class CardVaultService {
 			}
 		}
 		return card;
+	}
+	
+	public String getCardBrandImageURL(String brandType) throws Exception {
+		if(brandType!=null && !brandType.isEmpty()) {
+			if(brandType.equalsIgnoreCase("Amex")) {
+				return "amex-card-1.jpg";
+			}else if(brandType.equalsIgnoreCase("Visa")) {
+				return "visa-card-1.jpg";
+			}else if(brandType.equalsIgnoreCase("Maestro")) {
+				return "maestro-card-1.jpg";
+			}else if(brandType.equalsIgnoreCase("Rupay")) {
+				return "rupay-card-1.jpg";
+			}else if(brandType.equalsIgnoreCase("MasterCard")) {
+				return "mastercard-card-1.jpg";
+			}else if(brandType.equalsIgnoreCase("Citi Diners")) {
+				return "diners-card-1.jpg";
+			}else {
+				return null;
+			}
+		}
+		return null;
 	}
 	
 	
