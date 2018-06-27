@@ -131,6 +131,7 @@ public class CommonUtils {
 		}
 		return isHtmlContent;
 	}
+	
 	public static boolean isValidCardNumber(String cardNumber) {
 		int sum = 0;
 		boolean alternate = false;
@@ -235,7 +236,7 @@ public class CommonUtils {
 				|| !CommonUtils.isNumaric(cardNumber)) {
 			throw new IllegalArgumentException(MessageCodes.CARD_NUMBER_NUMARIC);
 		}
-		if (!CommonUtils.isValidCardNumber(cardNumber)) {
+		if (!isValidCardNumber(cardNumber)) {
 			throw new IllegalArgumentException(MessageCodes.INVALID_CARD_NUMBER);
 		}
 		boolean isCardExpired = DateUtils.isCardExpired(cardExpiryDate);

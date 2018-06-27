@@ -20,6 +20,7 @@ import com.goomo.cardvault.dto.StatusMessage;
 import com.goomo.cardvault.model.BinMaster;
 import com.goomo.cardvault.model.CCKeyMaster;
 import com.goomo.cardvault.model.CardMaster;
+import com.goomo.cardvault.utils.CardUtil;
 import com.goomo.cardvault.utils.CommonUtils;
 import com.goomo.cardvault.utils.CryptoUtils;
 import com.goomo.cardvault.utils.DateUtils;
@@ -237,10 +238,16 @@ public class CardVaultService {
 			if(cardMaster.getCardIssuedBy()!=null) {
 				card.setCardIssuedBy(cardMaster.getCardIssuedBy());
 			}
-			if(cardMaster.getCardBrand()!=null) {
+			if(cardMaster.getCardBrand()!=null && !cardMaster.getCardBrand().isEmpty()) {
 				card.setCardBrand(cardMaster.getCardBrand());
-				card.setBrandImageURL(getCardBrandImageURL(cardMaster.getCardBrand()));
+			}else {
+				String brandType = CardUtil.processCardBrand(cardMaster.getMaskedCardNumber());
+				if(brandType!=null && !brandType.isEmpty() && !brandType.equalsIgnoreCase("INVALID")) {
+					card.setCardBrand(brandType);
+					
+				}
 			}
+			card.setBrandImageURL(getCardBrandImageURL(card.getCardBrand()));
 			if(cardMaster.getCardType()!=null) {
 				card.setCardType(cardMaster.getCardType());
 			}
