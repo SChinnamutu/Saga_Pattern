@@ -1,5 +1,8 @@
 package com.goomo.cardvault.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,6 +94,13 @@ public class CardUtil {
 		// Visa
 		if(cardBin.startsWith("4") && (cardLen == 13 || cardLen == 16 || cardLen == 19)) {
 			return "Visa";
+		}
+		
+		// Rupay
+		Pattern pattern = Pattern.compile("^(508[5-9][0-9]{12})|(6069[8-9][0-9]{11})|(607[0-8][0-9]{12})|(6079[0-8][0-9]{11})|(608[0-5][0-9]{12})|(6521[5-9][0-9]{11})|(652[2-9][0-9]{12})|(6530[0-9]{12})|(6531[0-4][0-9]{11})");
+		Matcher matcher = pattern.matcher(cardNumber);
+		if(matcher.matches()) {
+			return "Rupay";
 		}
 		
 		// if nothing matches
