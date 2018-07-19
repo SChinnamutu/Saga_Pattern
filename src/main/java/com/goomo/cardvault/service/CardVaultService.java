@@ -575,13 +575,20 @@ public class CardVaultService {
 			String decCardDetails = CryptoUtils.decrypt(encCardDetails, ccKey);
 			if(decCardDetails!=null && !decCardDetails.isEmpty()) {
 				CardDTO decryptedCardDTO = CommonUtils.getCardDetails(decCardDetails);
+				boolean isCardExpired = DateUtils.isCardExpired(decryptedCardDTO.getCardExpiryMonthYear());
 				CardDetailsResponse newResponse = new CardDetailsResponse();
-				newResponse.setCardNumber(decryptedCardDTO.getCardNumber());
-				newResponse.setCardHolderName(decryptedCardDTO.getCardHolderName());
-				newResponse.setCardExpiryDate(decryptedCardDTO.getCardExpiryMonthYear());
-				newResponse.setStatus(MessageCodes.SUCCESS);
-				newResponse.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
-				log.info("CardVaultService :: retrieveCardDetails :: successfull");
+				if(isCardExpired) {
+					newResponse.setStatus(MessageCodes.BAD_REQUEST);
+					newResponse.setStatusMessage(new StatusMessage(MessageCodes.CARD_EXPIRED, MessageCodes.CARD_EXPIRY_MSG));
+					log.info("CardVaultService :: retrieveCardDetails :: failed :: Card Expired on {}",decryptedCardDTO.getCardExpiryMonthYear());
+				}else {
+					newResponse.setCardNumber(decryptedCardDTO.getCardNumber());
+					newResponse.setCardHolderName(decryptedCardDTO.getCardHolderName());
+					newResponse.setCardExpiryDate(decryptedCardDTO.getCardExpiryMonthYear());
+					newResponse.setStatus(MessageCodes.SUCCESS);
+					newResponse.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
+					log.info("CardVaultService :: retrieveCardDetails :: successfull");
+				}
 				return newResponse;
 			}else {
 				return invalidCardError(response);
