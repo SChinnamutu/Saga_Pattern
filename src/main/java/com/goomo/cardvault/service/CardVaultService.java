@@ -20,6 +20,7 @@ import com.goomo.cardvault.dto.StatusMessage;
 import com.goomo.cardvault.model.BinMaster;
 import com.goomo.cardvault.model.CCKeyMaster;
 import com.goomo.cardvault.model.CardMaster;
+import com.goomo.cardvault.utils.CardUtil;
 import com.goomo.cardvault.utils.CommonUtils;
 import com.goomo.cardvault.utils.CryptoUtils;
 import com.goomo.cardvault.utils.DateUtils;
@@ -237,10 +238,16 @@ public class CardVaultService {
 			if(cardMaster.getCardIssuedBy()!=null) {
 				card.setCardIssuedBy(cardMaster.getCardIssuedBy());
 			}
-			if(cardMaster.getCardBrand()!=null) {
+			if(cardMaster.getCardBrand()!=null && !cardMaster.getCardBrand().isEmpty()) {
 				card.setCardBrand(cardMaster.getCardBrand());
-				card.setBrandImageURL(getCardBrandImageURL(cardMaster.getCardBrand()));
+			}else {
+				String brandType = CardUtil.processCardBrand(cardMaster.getMaskedCardNumber());
+				if(brandType!=null && !brandType.isEmpty() && !brandType.equalsIgnoreCase("INVALID")) {
+					card.setCardBrand(brandType);
+					
+				}
 			}
+			card.setBrandImageURL(getCardBrandImageURL(card.getCardBrand()));
 			if(cardMaster.getCardType()!=null) {
 				card.setCardType(cardMaster.getCardType());
 			}
@@ -568,13 +575,20 @@ public class CardVaultService {
 			String decCardDetails = CryptoUtils.decrypt(encCardDetails, ccKey);
 			if(decCardDetails!=null && !decCardDetails.isEmpty()) {
 				CardDTO decryptedCardDTO = CommonUtils.getCardDetails(decCardDetails);
+				boolean isCardExpired = DateUtils.isCardExpired(decryptedCardDTO.getCardExpiryMonthYear());
 				CardDetailsResponse newResponse = new CardDetailsResponse();
-				newResponse.setCardNumber(decryptedCardDTO.getCardNumber());
-				newResponse.setCardHolderName(decryptedCardDTO.getCardHolderName());
-				newResponse.setCardExpiryDate(decryptedCardDTO.getCardExpiryMonthYear());
-				newResponse.setStatus(MessageCodes.SUCCESS);
-				newResponse.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
-				log.info("CardVaultService :: retrieveCardDetails :: successfull");
+				if(isCardExpired) {
+					newResponse.setStatus(MessageCodes.BAD_REQUEST);
+					newResponse.setStatusMessage(new StatusMessage(MessageCodes.CARD_EXPIRED, MessageCodes.CARD_EXPIRY_MSG));
+					log.info("CardVaultService :: retrieveCardDetails :: failed :: Card Expired on {}",decryptedCardDTO.getCardExpiryMonthYear());
+				}else {
+					newResponse.setCardNumber(decryptedCardDTO.getCardNumber());
+					newResponse.setCardHolderName(decryptedCardDTO.getCardHolderName());
+					newResponse.setCardExpiryDate(decryptedCardDTO.getCardExpiryMonthYear());
+					newResponse.setStatus(MessageCodes.SUCCESS);
+					newResponse.setStatusMessage(new StatusMessage(MessageCodes.SUCCESS_MSG, MessageCodes.SUCCESS_DESC));
+					log.info("CardVaultService :: retrieveCardDetails :: successfull");
+				}
 				return newResponse;
 			}else {
 				return invalidCardError(response);
