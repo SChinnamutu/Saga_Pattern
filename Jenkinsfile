@@ -26,14 +26,20 @@ node ('jenkins-slave') {
   stage('Unit Tests') {
       }
 
-  if(!isOnDevelop()) {
-    return;
-  }
+
+  if( isOnDevelop() || isOnMaster() || !isOnDevelop() ) { return; }
+
   stage('Promote') {
     docker.withRegistry("${registry_url}","${registry_creds}"){
       docker.build("${app_name}:${tag}").push("${tag}")
     }
   }
+
+
+  if( isOnDevelop() || isOnMaster() || !isOnDevelop() ) {
+    return;
+  }
+
 
   stage('Dev Deployment')
   {
@@ -58,6 +64,11 @@ node ('jenkins-slave') {
 def isOnDevelop(){
   return !env.BRANCH_NAME || env.BRANCH_NAME == 'develop';
 }
+
+def isOnMaster(){
+   return !env.BRANCH_NAME || env.BRANCH_NAME == 'master';
+}
+
 /*
 node ('jenkins-slave-bot') { 
 
