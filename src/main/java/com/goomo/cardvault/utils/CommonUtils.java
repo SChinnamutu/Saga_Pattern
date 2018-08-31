@@ -7,6 +7,12 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.goomo.cardvault.constants.MessageCodes;
+import com.goomo.cardvault.dto.CardDTO;
+
 
 /**
  * This class is used for implemeting the all common util operations
@@ -17,6 +23,8 @@ import java.util.regex.Pattern;
 
 public class CommonUtils {
 
+	private static final Logger log = LoggerFactory.getLogger(CommonUtils.class);
+	
 	public static String generateEightDigitUniqueId() {
 		java.util.Random generator = new java.util.Random();
 		generator.setSeed(System.currentTimeMillis());
@@ -123,6 +131,7 @@ public class CommonUtils {
 		}
 		return isHtmlContent;
 	}
+	
 	public static boolean isValidCardNumber(String cardNumber) {
 		int sum = 0;
 		boolean alternate = false;
@@ -178,8 +187,7 @@ public class CommonUtils {
 			expiry = simpleDateFormat.parse(cardexpiry);
 			expired = expiry.before(new Date());
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("isCardExpires :: " ,e);
 			return true;
 		}
 		return expired;
@@ -191,7 +199,7 @@ public class CommonUtils {
 		try {
 			date = simpleDateFormat.parse(dateString);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.error("StringToDateFormat :: " ,e);
 		}
 		return date;
 	}
@@ -212,5 +220,31 @@ public class CommonUtils {
 			}
 		}
 		return ret.toString();
+	}
+	
+	public static CardDTO getCardDetails(String preDecryptCardDetails) throws Exception{
+		String[] preDecryptCardDetailsArr =  preDecryptCardDetails.split(Pattern.quote("^^"));
+		String cardNumber = preDecryptCardDetailsArr[0];
+		String nameOnCard = preDecryptCardDetailsArr[1];
+		String cardExpryDate = preDecryptCardDetailsArr[2];
+		CardDTO dto = new CardDTO(cardNumber, cardExpryDate, nameOnCard);
+		return dto;
+	}
+	
+	public static void validateCardDetails(String cardNumber, String nameOnCard, String cardExpiryDate) throws Exception{
+		if (CommonUtils.checkIsNullOrEmpty(cardNumber)
+				|| !CommonUtils.isNumaric(cardNumber)) {
+			throw new IllegalArgumentException(MessageCodes.CARD_NUMBER_NUMARIC);
+		}
+		if (!isValidCardNumber(cardNumber)) {
+			throw new IllegalArgumentException(MessageCodes.INVALID_CARD_NUMBER);
+		}
+		boolean isCardExpired = DateUtils.isCardExpired(cardExpiryDate);
+		if(isCardExpired) {
+			throw new IllegalArgumentException(MessageCodes.CARD_EXPIRY_MSG);
+		}
+		if (CommonUtils.checkIsNullOrEmpty(nameOnCard)) {
+			throw new IllegalArgumentException(MessageCodes.INVALID_CARD_HOLDER_NAME);
+		}
 	}
 }

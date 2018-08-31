@@ -6,6 +6,11 @@ import org.springframework.stereotype.Component;
 
 import com.goomo.cardvault.dto.StatusMessage;
 
+/**
+ * This class used to define the parameters for global exception model.
+ * @author Manjunath Jakkandi
+ *
+ */
 @Component
 public class ExceptionResponseModel implements Serializable{
 	

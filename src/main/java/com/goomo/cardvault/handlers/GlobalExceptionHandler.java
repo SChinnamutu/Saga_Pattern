@@ -3,6 +3,8 @@ package com.goomo.cardvault.handlers;
 import java.io.IOException;
 
 import org.apache.http.conn.ConnectTimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -22,7 +24,7 @@ import com.goomo.cardvault.exceptions.ExceptionResponseModel;
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
-	
+	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 	/**
 	 * This method used to throw server internal error at global level
 	 * @author Manjunath Jakkandi
@@ -32,8 +34,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ExceptionResponseModel> generalException(Exception e) throws Exception{
-		System.out.println(e);
-		e.printStackTrace();
+		log.error(e.getMessage());
 		ExceptionResponseModel model = new ExceptionResponseModel();
 		model.setStatus(MessageCodes.INTERNAL_SERVER_ERROR);
 		model.setStatusMessage(new StatusMessage(MessageCodes.INTERNAL_SERVER_ERROR_MSG, "Internal Server Error. Please try again later."));
@@ -50,8 +51,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(CustomException.class)
 	public ResponseEntity<ExceptionResponseModel> customException(CustomException e) throws Exception{
-		System.out.println(e);
-		e.printStackTrace();
+		log.error(e.getMessage());
 		ExceptionResponseModel model = new ExceptionResponseModel();
 		if(e.getMessage().equalsIgnoreCase(MessageCodes.BAD_REQUEST)) {
 			model.setStatus(MessageCodes.BAD_REQUEST);
@@ -86,7 +86,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponseModel> badRequest(MethodArgumentNotValidException e) throws IOException{
-		System.out.println(e);
+		log.error(e.getMessage());
 		ExceptionResponseModel model = new ExceptionResponseModel();
 		model.setStatus(MessageCodes.BAD_REQUEST);
 		model.setStatusMessage(new StatusMessage(MessageCodes.BAD_REQUEST_MSG, e.getMessage()));
@@ -103,7 +103,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<ExceptionResponseModel> handleIllegalArgumentException(IllegalArgumentException e) throws IOException {
-		System.out.println(e);
+		log.error(e.getMessage());
 		ExceptionResponseModel model = new ExceptionResponseModel();
 		model.setStatus(MessageCodes.BAD_REQUEST);
 		model.setStatusMessage(new StatusMessage(MessageCodes.BAD_REQUEST_MSG, e.getMessage()));
@@ -120,7 +120,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler({ConnectTimeoutException.class, WebServiceIOException.class})
     public ResponseEntity<ExceptionResponseModel> invalidResponse(ConnectTimeoutException ce) throws IOException {
-		System.out.println(ce);
+		log.error(ce.getMessage());
 		ExceptionResponseModel model = new ExceptionResponseModel();
 		model.setStatus(MessageCodes.GATEWAY_TIMEOUT);
 		model.setStatusMessage(new StatusMessage(MessageCodes.GATEWAY_TIMEOUT_MSG, MessageCodes.GATEWAY_TIMEOUT_DESC));

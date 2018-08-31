@@ -87,9 +87,7 @@ public class JWTAuth {
 	    		// expiry date for jwt token
 	    		Date expiryDate = new Date();
 	    		int min = expiryDate.getMinutes()+60;
-	    		System.out.println("expiryDate >>> "+expiryDate);
 	    		expiryDate.setMinutes(min);
-	    		System.out.println("expiryDate >>> "+expiryDate);
 	    		
 	    		// create jwt token
 	    		encryptedToken = JWT.create()
@@ -105,11 +103,11 @@ public class JWTAuth {
 	    				.sign(algo);
 	    		log.info("Card Vault :: JWTAuth :: encryptToken :: encryptedToken :: "+encryptedToken);
 	    	}catch(UnsupportedEncodingException e) {
-	    		e.printStackTrace();
+	    		log.error(e.getMessage());
 	    	}catch (JWTCreationException e1){
-	    		e1.printStackTrace();
+	    		log.error(e1.getMessage());
 	    	}catch(Exception ex) {
-	    		ex.printStackTrace();
+	    		log.error(ex.getMessage());
 	    	}
     		return encryptedToken;
 	}

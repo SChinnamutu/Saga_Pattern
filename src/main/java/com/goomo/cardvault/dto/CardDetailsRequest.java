@@ -2,6 +2,11 @@ package com.goomo.cardvault.dto;
 
 import java.io.Serializable;
 
+/**
+ * This class used to define the parameters required for card vault API's.
+ * @author Manjunath Jakkandi
+ *
+ */
 public class CardDetailsRequest implements Serializable{
 
 	private static final long serialVersionUID = 1L;
@@ -14,6 +19,11 @@ public class CardDetailsRequest implements Serializable{
 	private boolean pemKey;
 	private String pesToken;
 	private String cmk;
+	private String cardLabel;
+	private String cckeyPart2;
+	private String cardNumber;
+	private String cardHolderName;
+	private String cardExpiryDate;
 	
 	public CardDetailsRequest() {
 		super();
@@ -82,13 +92,52 @@ public class CardDetailsRequest implements Serializable{
 	public void setCmk(String cmk) {
 		this.cmk = cmk;
 	}
+	
+	public String getCardLabel() {
+		return cardLabel;
+	}
+
+	public void setCardLabel(String cardLabel) {
+		this.cardLabel = cardLabel;
+	}
+	
+	public String getCckeyPart2() {
+		return cckeyPart2;
+	}
+
+	public void setCckeyPart2(String cckeyPart2) {
+		this.cckeyPart2 = cckeyPart2;
+	}
+	
+	public String getCardNumber() {
+		return cardNumber;
+	}
+
+	public void setCardNumber(String cardNumber) {
+		this.cardNumber = cardNumber;
+	}
+
+	public String getCardHolderName() {
+		return cardHolderName;
+	}
+
+	public void setCardHolderName(String cardHolderName) {
+		this.cardHolderName = cardHolderName;
+	}
+
+	public String getCardExpiryDate() {
+		return cardExpiryDate;
+	}
+
+	public void setCardExpiryDate(String cardExpiryDate) {
+		this.cardExpiryDate = cardExpiryDate;
+	}
 
 	@Override
 	public String toString() {
 		return "CardDetailsRequest [userId=" + userId + ", cardToken=" + cardToken + ", cardUniqueId=" + cardUniqueId
 				+ ", encCardDetails=" + encCardDetails + ", txnBy=" + txnBy + ", pemKey=" + pemKey + ", pesToken="
-				+ pesToken + ", cmk=" + cmk + "]";
+				+ pesToken + ", cmk=" + cmk + ", cardLabel=" + cardLabel + ", cckeyPart2=" + cckeyPart2+ "]";
 	}
-	
 
 }

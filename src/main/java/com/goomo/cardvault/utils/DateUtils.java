@@ -1,9 +1,12 @@
 package com.goomo.cardvault.utils;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +119,7 @@ public class DateUtils {
     		SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
 			date= sdf.parse(dateStr);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.error("convertStringToDate" ,e);
 		}
     	return date;
     }
@@ -132,9 +135,67 @@ public class DateUtils {
 			toDateValue = simpleDateFormat.parse(toDate);
 			isValid = toDateValue.before(fromDateValue);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.error("convertStringToDate" ,e);
 			return true;
 		}
 		return isValid;
+	}
+	
+	
+	public static String getCardExpiryDateFormat(String cardExpiryMonthAndYear) {
+		
+		String[] cardExpiryArr = cardExpiryMonthAndYear.split(Pattern.quote("/"));
+		int month = Integer.parseInt(cardExpiryArr[0]);
+		int year = 2000 + Integer.parseInt(cardExpiryArr[1]);
+		
+		Date currentDate = new Date();
+		int date = currentDate.getDate();
+		
+		String cardExpiryDateFormat = year + "-" + month + "-" + date;
+		Date cardExpiryDateObj = DateUtils.getDate(cardExpiryDateFormat);
+		String lastDayOfMonth = getLastDayOfMonth(cardExpiryDateObj);
+		
+		return lastDayOfMonth;
+	}
+	
+	// cardExpiryMonthYear contains only month and year
+	public static boolean isCardExpired(String cardExpiryMonthYear) {
+		boolean isCardExpired = false;
+		if(cardExpiryMonthYear!=null && !cardExpiryMonthYear.isEmpty()) {
+			Date currentDate = new Date();
+			
+			String lastDayOfMonth = getCardExpiryDateFormat(cardExpiryMonthYear);
+			Date cardExpiryDateObj2 = DateUtils.getDate(lastDayOfMonth);
+			
+			if(currentDate.after(cardExpiryDateObj2)) {
+				isCardExpired = true;
+			}
+		}
+		return isCardExpired;
+	}
+	
+	// cardExpiryDateStr contains format with yyyy-MM-dd format
+	public static boolean isCardExpired(String cardExpiryDateStr, Date currentDate) {
+		boolean isCardExpired = false;
+		Date cardExpiryDate = DateUtils.getDate(cardExpiryDateStr);
+		if(currentDate.after(cardExpiryDate)) {
+			isCardExpired = true;
+		}
+		return isCardExpired;
+	}
+	
+	
+	public static String getLastDayOfMonth(Date date) {
+		Calendar calendar = Calendar.getInstance();  
+        calendar.setTime(date);  
+
+        calendar.add(Calendar.MONTH, 1);  
+        calendar.set(Calendar.DAY_OF_MONTH, 1);  
+        calendar.add(Calendar.DATE, -1);  
+
+        Date lastDayOfMonth = calendar.getTime();  
+
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(lastDayOfMonth);
 	}
 }
