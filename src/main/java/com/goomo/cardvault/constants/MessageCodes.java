@@ -27,7 +27,7 @@ public class MessageCodes {
 
 	public static final String INVALID_RESPONSE = "502";
 	public static final String INVALID_RESPONSE_MSG = "INVALID_RESPONSE";
-	public static final String INVALID_RESPONSE_DESC = "Internal Response. Please try again later";
+	public static final String INVALID_RESPONSE_DESC = "Invalid Response. Please try again later";
 
 	public static final String BAD_REQUEST = "400";
 	public static final String BAD_REQUEST_MSG = "BAD_REQUEST";
@@ -61,7 +61,10 @@ public class MessageCodes {
 	public static final String HEALTH_CHECK_RES_DESC = "Health check successful";
 	public static final String NO_RECORDS_DESC = "Sorry, No records found";
 	public static final String NO_RECORDS_MSG = "NO_RECORDS";
-	
+	public static final String CARD_EXPIRY_MSG = "Card validity expired. Please provide valid card details";
+	public static final String INVALID_USER_ID = "Bad Request. User Id is required";
+	public static final String CARD_ALREADY_EXIST = "Sorry, Same card already exists";
+	public static final String INVALID_CARD = "Sorry, no card details found";
 	
 	
 }

@@ -2,6 +2,7 @@ package com.goomo.cardvault.dao;
 
 import java.util.List;
 
+import com.goomo.cardvault.model.BinMaster;
 import com.goomo.cardvault.model.CardMaster;
 
 /**
@@ -18,5 +19,13 @@ public interface CardVaultDAO {
 	public CardMaster fetchCardDetailsByUniqueId(String cardUniqueId) throws Exception;
 	
 	public CardMaster storeCard(CardMaster cardMaster) throws Exception;
+	
+	public void deleteCard(CardMaster cardMaster) throws Exception;
+	
+	public CardMaster fetchCardDetailsByTokenAndUserId(String token, String userId) throws Exception;
+	
+	public CardMaster fetchCardDetailsByUniqueIdAndUserId(String cardUniqueId, String userId) throws Exception; 
+	
+	public BinMaster findByBinVal(String binValue) throws Exception;
 	
 }

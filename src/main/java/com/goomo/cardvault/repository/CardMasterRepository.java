@@ -24,5 +24,10 @@ public interface CardMasterRepository extends CrudRepository<CardMaster, Long> {
 	@Query("SELECT c FROM CardMaster c where c.userId = :userId")
 	public List<CardMaster> findByUserId(@Param("userId") String userId);
 	
+	@Query("SELECT c FROM CardMaster c where c.uniqueCardId = :uniqueCardId and c.userId = :userId")
+	public CardMaster findByUniqueCardIdAndUserId(@Param("uniqueCardId") String uniqueCardId, @Param("userId") String userId);
+	
+	@Query("SELECT c FROM CardMaster c where c.cardToken = :cardToken and c.userId = :userId")
+	public CardMaster findByCardTokenAndUserId(@Param("cardToken") String cardToken, @Param("userId") String userId);
 	
 }

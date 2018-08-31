@@ -1,16 +1,14 @@
 package com.goomo.cardvault.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -31,8 +29,8 @@ public class CardMaster implements Serializable {
 	private Long cardId;
 	
 	
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "cardMaster", cascade = CascadeType.ALL)
-	private List<CCKeyMaster> cckeyMasterList;
+	@OneToOne(mappedBy = "cardMaster", cascade = CascadeType.ALL)
+	private CCKeyMaster cckeyMaster;
 	
 	
 	@Column(name = "card_token")
@@ -59,6 +57,12 @@ public class CardMaster implements Serializable {
 	@Column(name = "user_id")
 	private String userId;
 	
+	@Column(name = "card_label")
+	private String cardLabel;
+	
+	@Column(name = "card_brand")
+	private String cardBrand;
+	
 	@Column(name = "created_by")
 	private String createdBy;
 	
@@ -70,6 +74,9 @@ public class CardMaster implements Serializable {
 	
 	@Column(name = "updated_at")
 	private String updatedAt;
+	
+	@Column(name = "card_expiry_date")
+	private String cardExpiryDate;
 	
 	public CardMaster() {
 		super();
@@ -146,7 +153,7 @@ public class CardMaster implements Serializable {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-
+	
 	public String getCreatedBy() {
 		return createdBy;
 	}
@@ -179,14 +186,35 @@ public class CardMaster implements Serializable {
 		this.updatedAt = updatedAt;
 	}
 
-	public List<CCKeyMaster> getCckeyMasterList() {
-		return cckeyMasterList;
+	public CCKeyMaster getCckeyMaster() {
+		return cckeyMaster;
 	}
 
-	public void setCckeyMasterList(List<CCKeyMaster> cckeyMasterList) {
-		this.cckeyMasterList = cckeyMasterList;
+	public void setCckeyMaster(CCKeyMaster cckeyMaster) {
+		this.cckeyMaster = cckeyMaster;
 	}
-	
-	
-	
+
+	public String getCardExpiryDate() {
+		return cardExpiryDate;
+	}
+
+	public void setCardExpiryDate(String cardExpiryDate) {
+		this.cardExpiryDate = cardExpiryDate;
+	}
+
+	public String getCardLabel() {
+		return cardLabel;
+	}
+
+	public void setCardLabel(String cardLabel) {
+		this.cardLabel = cardLabel;
+	}
+
+	public String getCardBrand() {
+		return cardBrand;
+	}
+
+	public void setCardBrand(String cardBrand) {
+		this.cardBrand = cardBrand;
+	}
 }
