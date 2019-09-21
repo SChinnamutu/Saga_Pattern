@@ -1,14 +1,18 @@
 package com.progressivecoder.ordermanagement.orderservice.controllers;
 
-import com.progressivecoder.ordermanagement.orderservice.dto.commands.OrderCreateDTO;
-import com.progressivecoder.ordermanagement.orderservice.services.commands.OrderCommandService;
-import io.swagger.annotations.Api;
+import java.util.concurrent.CompletableFuture;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.concurrent.CompletableFuture;
+import com.progressivecoder.ecommerce.dto.OrderCreateDTO;
+import com.progressivecoder.ecommerce.dto.OrderDTO;
+import com.progressivecoder.ordermanagement.orderservice.services.commands.OrderCommandService;
+
+import io.swagger.annotations.Api;
 
 @RestController
 @RequestMapping(value = "/api/orders")
@@ -24,5 +28,10 @@ public class OrderCommandController {
     @PostMapping
     public CompletableFuture<String> createOrder(@RequestBody OrderCreateDTO orderCreateDTO){
         return orderCommandService.createOrder(orderCreateDTO);
+    }
+    
+    @DeleteMapping
+    public CompletableFuture<String> deleteOrder(@RequestBody OrderDTO orderDTO){
+        return orderCommandService.deleteOrder(orderDTO);
     }
 }
