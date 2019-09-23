@@ -1,7 +1,6 @@
-package com.progressivecoder.ordermanagement.orderservice.entity;
+package com.progressivecoder.paymentmanagement.paymentservice.entity;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -24,8 +23,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "order_transaction_master")
-public class OrderTransaction implements Serializable {
+@Table(name = "payment_transaction_master")
+public class PaymentTransaction implements Serializable {
 
 
 	private static final long serialVersionUID = 1L;
@@ -41,14 +40,8 @@ public class OrderTransaction implements Serializable {
 	@Column(name = "trn_status")
 	private String status;
 	
-	@Column(name = "trn_amount")
-	private BigDecimal txnAmount;
-	
-	@Column(name = "trn_currency")
-	private String currency;
-
-	@Column(name = "trn_prod_type")
-	private String txnProductType;
+	@Column(name = "trn_order_id")
+	private String txnOrderId;
 	
 	@Column(name = "trn_created_date")
 	private Date txnCreatedDateAt;
@@ -80,30 +73,6 @@ public class OrderTransaction implements Serializable {
 		this.status = status;
 	}
 
-	public BigDecimal getTxnAmount() {
-		return txnAmount;
-	}
-
-	public void setTxnAmount(BigDecimal txnAmount) {
-		this.txnAmount = txnAmount;
-	}
-
-	public String getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(String currency) {
-		this.currency = currency;
-	}
-
-	public String getTxnProductType() {
-		return txnProductType;
-	}
-
-	public void setTxnProductType(String txnProductType) {
-		this.txnProductType = txnProductType;
-	}
-
 	public Date getTxnCreatedDateAt() {
 		return txnCreatedDateAt;
 	}
@@ -118,6 +87,14 @@ public class OrderTransaction implements Serializable {
 
 	public void setTxnUpdatedDateAt(Date txnUpdatedDateAt) {
 		this.txnUpdatedDateAt = txnUpdatedDateAt;
+	}
+
+	public String getTxnOrderId() {
+		return txnOrderId;
+	}
+
+	public void setTxnOrderId(String txnOrderId) {
+		this.txnOrderId = txnOrderId;
 	}
 	
 	

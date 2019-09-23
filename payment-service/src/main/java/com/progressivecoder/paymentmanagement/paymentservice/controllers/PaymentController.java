@@ -1,8 +1,7 @@
-package com.progressivecoder.ordermanagement.orderservice.controllers;
+package com.progressivecoder.paymentmanagement.paymentservice.controllers;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,30 +10,28 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.progressivecoder.ecommerce.dto.OrderCreateDTO;
 import com.progressivecoder.ecommerce.dto.OrderDTO;
-import com.progressivecoder.ordermanagement.orderservice.services.commands.OrderCommandService;
+import com.progressivecoder.paymentmanagement.paymentservice.services.commands.PaymentService;
 
 import io.swagger.annotations.Api;
 
-
-@CrossOrigin(origins = "*")
 @RestController
-@RequestMapping(value = "/api/orders")
-@Api(value = "Order Commands", description = "Order Commands Related Endpoints", tags = "Order Commands")
-public class OrderCommandController {
+@RequestMapping(value = "/api/payments")
+@Api(value = "Payment Commands", description = "Payment Commands Related Endpoints", tags = "Payment Commands")
+public class PaymentController {
 
-    private OrderCommandService orderCommandService;
+    private PaymentService orderCommandService;
 
-    public OrderCommandController(OrderCommandService orderCommandService) {
+    public PaymentController(PaymentService orderCommandService) {
         this.orderCommandService = orderCommandService;
     }
 
     @PostMapping
-    public CompletableFuture<String> createOrder(@RequestBody OrderCreateDTO orderCreateDTO){
+    public CompletableFuture<String> createPayment(@RequestBody OrderCreateDTO orderCreateDTO){
         return orderCommandService.createOrder(orderCreateDTO);
     }
     
     @DeleteMapping
-    public CompletableFuture<String> deleteOrder(@RequestBody OrderDTO orderDTO){
+    public CompletableFuture<String> deletePayment(@RequestBody OrderDTO orderDTO){
         return orderCommandService.deleteOrder(orderDTO);
     }
 }

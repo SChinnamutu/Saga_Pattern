@@ -4,39 +4,36 @@ import java.math.BigDecimal;
 
 public class OrderCreateDTO {
 
-    private String itemType;
+	private String shippingId;
 
-    private BigDecimal price;
+	private String paymentId;
 
-    private String currency;
-    
-    private String requestedBy;
-    
-    private String orderId;
+	private String requestedBy;
 
-    public String getItemType() {
-        return itemType;
-    }
+	private String orderId;
 
-    public void setItemType(String itemType) {
-        this.itemType = itemType;
-    }
+	private String currency;
+	
+	private String itemType;
+	
+	private BigDecimal price;
+	
+	
+	public String getShippingId() {
+		return shippingId;
+	}
 
-    public BigDecimal getPrice() {
-        return price;
-    }
+	public void setShippingId(String shippingId) {
+		this.shippingId = shippingId;
+	}
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
+	public String getPaymentId() {
+		return paymentId;
+	}
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
+	public void setPaymentId(String paymentId) {
+		this.paymentId = paymentId;
+	}
 
 	public String getRequestedBy() {
 		return requestedBy;
@@ -53,6 +50,38 @@ public class OrderCreateDTO {
 	public void setOrderId(String orderId) {
 		this.orderId = orderId;
 	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
+	public String getItemType() {
+		return itemType;
+	}
+
+	public void setItemType(String itemType) {
+		this.itemType = itemType;
+	}
+
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+
+	@Override
+	public String toString() {
+		return "OrderCreateDTO [shippingId=" + shippingId + ", paymentId=" + paymentId + ", requestedBy=" + requestedBy
+				+ ", orderId=" + orderId + ", currency=" + currency + ", itemType=" + itemType + ", price=" + price
+				+ "]";
+	}
+	
 	
 	
     

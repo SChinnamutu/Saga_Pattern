@@ -32,7 +32,8 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 		if(orderCreateDTO.getRequestedBy() != null && orderCreateDTO.getRequestedBy().equalsIgnoreCase("CLIENT")) {
 			response = commandGateway.send(new CreateOrderCommand(UUID.randomUUID().toString(), orderCreateDTO.getItemType(),
 	                orderCreateDTO.getPrice(), orderCreateDTO.getCurrency(), String.valueOf(OrderStatus.CREATED)));
-		}else if(orderCreateDTO.getRequestedBy() != null && orderCreateDTO.getRequestedBy().equalsIgnoreCase("ADMIN")) {
+		}else if(orderCreateDTO.getRequestedBy() != null && 
+				orderCreateDTO.getRequestedBy().equalsIgnoreCase("ADMIN")) {
 			transaction = new OrderTransaction();
 			transaction.setCurrency(orderCreateDTO.getCurrency());
 			transaction.setStatus("APPROVED");
@@ -52,7 +53,8 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 		CompletableFuture<String> response = null;
 		OrderTransaction transaction = repository.findBytxnUniqueId(orderDTO.getOrderId());
 		if(transaction != null) {
-			repository.delete(transaction);
+			transaction.setStatus("CANCELLED");
+			repository.save(transaction);
 		}
 		response  = new CompletableFuture<>();
 		response.complete("SUCCESS");

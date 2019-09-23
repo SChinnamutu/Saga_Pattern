@@ -22,6 +22,11 @@ public class OrderDTO {
 	public void setOrderId(String orderId) {
 		this.orderId = orderId;
 	}
+
+	@Override
+	public String toString() {
+		return "OrderDTO [requestedBy=" + requestedBy + ", orderId=" + orderId + "]";
+	}
 	
 	
     
