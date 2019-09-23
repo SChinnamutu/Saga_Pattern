@@ -26,7 +26,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     private OrderTransactionRepository repository;
     
 	@Override
-    public CompletableFuture<String> createOrder(OrderCreateDTO orderCreateDTO) {
+    public String createOrder(OrderCreateDTO orderCreateDTO) {
 		CompletableFuture<String> response = null;
 		OrderTransaction transaction = null;
 		if(orderCreateDTO.getRequestedBy() != null && orderCreateDTO.getRequestedBy().equalsIgnoreCase("CLIENT")) {
@@ -42,23 +42,23 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 			transaction.setTxnProductType(orderCreateDTO.getItemType());
 			transaction.setTxnUniqueId(orderCreateDTO.getOrderId());
 			repository.save(transaction);
-			response  = new CompletableFuture<>();
-			response.complete("SUCCESS");
+			//response  = new CompletableFuture<>();
+			//response.complete("SUCCESS");
 		}
-		return response;
+		return "SUCCESS";
     }
 
 	@Override
-	public CompletableFuture<String> deleteOrder(OrderDTO orderDTO) {
+	public String deleteOrder(OrderDTO orderDTO) {
 		CompletableFuture<String> response = null;
 		OrderTransaction transaction = repository.findBytxnUniqueId(orderDTO.getOrderId());
 		if(transaction != null) {
 			transaction.setStatus("CANCELLED");
 			repository.save(transaction);
 		}
-		response  = new CompletableFuture<>();
-		response.complete("SUCCESS");
-		return response;
+		//response  = new CompletableFuture<>();
+		//response.complete("SUCCESS");
+		return "SUCCESS";
 	}
 	
 	

@@ -1,7 +1,6 @@
 package com.progressivecoder.shippingmanagement.shippingservice.controllers;
 
-import java.util.concurrent.CompletableFuture;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +13,8 @@ import com.progressivecoder.shippingmanagement.shippingservice.services.commands
 
 import io.swagger.annotations.Api;
 
+
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value = "/api/ship")
 @Api(value = "Ship Commands", description = "Ship Commands Related Endpoints", tags = "Ship Commands")
@@ -26,12 +27,12 @@ public class ShipController {
     }
 
     @PostMapping
-    public CompletableFuture<String> createShippingOrder(@RequestBody OrderCreateDTO orderCreateDTO){
+    public String createShippingOrder(@RequestBody OrderCreateDTO orderCreateDTO){
         return orderCommandService.createOrder(orderCreateDTO);
     }
     
     @DeleteMapping
-    public CompletableFuture<String> deleteShippingOrder(@RequestBody OrderDTO orderDTO){
+    public String deleteShippingOrder(@RequestBody OrderDTO orderDTO){
         return orderCommandService.deleteOrder(orderDTO);
     }
 }

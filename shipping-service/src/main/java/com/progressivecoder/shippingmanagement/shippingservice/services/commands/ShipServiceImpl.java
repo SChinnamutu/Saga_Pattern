@@ -1,7 +1,6 @@
 package com.progressivecoder.shippingmanagement.shippingservice.services.commands;
 
 import java.util.Date;
-import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,8 +18,7 @@ public class ShipServiceImpl implements ShipService {
     private ShipTransactionRepository repository;
     
 	@Override
-    public CompletableFuture<String> createOrder(OrderCreateDTO orderCreateDTO) {
-		CompletableFuture<String> response = null;
+    public String createOrder(OrderCreateDTO orderCreateDTO) {
 		ShipTransaction transaction = new ShipTransaction();
 		transaction.setStatus("APPROVED");
 		transaction.setTxnCreatedDateAt(new Date());
@@ -28,22 +26,17 @@ public class ShipServiceImpl implements ShipService {
 		transaction.setTxnOrderId(orderCreateDTO.getOrderId());
 		transaction.setTxnPaymentId(orderCreateDTO.getPaymentId());
 		repository.save(transaction);
-		response  = new CompletableFuture<>();
-		response.complete("SUCCESS");
-		return response;
+		return "SUCCESS";
     }
 
 	@Override
-	public CompletableFuture<String> deleteOrder(OrderDTO orderDTO) {
-		CompletableFuture<String> response = null;
+	public String deleteOrder(OrderDTO orderDTO) {
 		ShipTransaction transaction = repository.findBytxnUniqueId(orderDTO.getOrderId());
 		if(transaction != null) {
 			transaction.setStatus("CANCELLED");
 			repository.save(transaction);
 		}
-		response  = new CompletableFuture<>();
-		response.complete("SUCCESS");
-		return response;
+		return "SUCCESS";
 	}
 	
 	

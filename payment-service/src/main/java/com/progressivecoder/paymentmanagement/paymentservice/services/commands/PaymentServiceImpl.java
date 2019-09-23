@@ -1,7 +1,6 @@
 package com.progressivecoder.paymentmanagement.paymentservice.services.commands;
 
 import java.util.Date;
-import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,30 +17,24 @@ public class PaymentServiceImpl implements PaymentService {
     private PaymentTransactionRepository repository;
     
 	@Override
-    public CompletableFuture<String> createOrder(OrderCreateDTO orderCreateDTO) {
-		CompletableFuture<String> response = null;
+    public String createOrder(OrderCreateDTO orderCreateDTO) {
 		PaymentTransaction transaction = new PaymentTransaction();
 		transaction.setTxnCreatedDateAt(new Date());
 		transaction.setTxnOrderId(orderCreateDTO.getOrderId());
 		transaction.setTxnUniqueId(orderCreateDTO.getPaymentId());
 		transaction.setStatus("APPROVED");
 		repository.save(transaction);
-		response  = new CompletableFuture<>();
-		response.complete("SUCCESS");
-		return response;
+		return "SUCCESS";
     }
 
 	@Override
-	public CompletableFuture<String> deleteOrder(OrderDTO orderDTO) {
-		CompletableFuture<String> response = null;
+	public String deleteOrder(OrderDTO orderDTO) {
 		PaymentTransaction transaction = repository.findBytxnUniqueId(orderDTO.getOrderId());
 		if(transaction != null) {
 			transaction.setStatus("CANCELLED");
 			repository.save(transaction);
 		}
-		response  = new CompletableFuture<>();
-		response.complete("SUCCESS");
-		return response;
+		return "SUCCESS";
 	}
 	
 	

@@ -1,7 +1,6 @@
 package com.progressivecoder.paymentmanagement.paymentservice.controllers;
 
-import java.util.concurrent.CompletableFuture;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +13,7 @@ import com.progressivecoder.paymentmanagement.paymentservice.services.commands.P
 
 import io.swagger.annotations.Api;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value = "/api/payments")
 @Api(value = "Payment Commands", description = "Payment Commands Related Endpoints", tags = "Payment Commands")
@@ -26,12 +26,12 @@ public class PaymentController {
     }
 
     @PostMapping
-    public CompletableFuture<String> createPayment(@RequestBody OrderCreateDTO orderCreateDTO){
+    public String createPayment(@RequestBody OrderCreateDTO orderCreateDTO){
         return orderCommandService.createOrder(orderCreateDTO);
     }
     
     @DeleteMapping
-    public CompletableFuture<String> deletePayment(@RequestBody OrderDTO orderDTO){
+    public String deletePayment(@RequestBody OrderDTO orderDTO){
         return orderCommandService.deleteOrder(orderDTO);
     }
 }

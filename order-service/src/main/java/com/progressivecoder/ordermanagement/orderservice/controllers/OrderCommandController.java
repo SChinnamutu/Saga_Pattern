@@ -1,7 +1,6 @@
 package com.progressivecoder.ordermanagement.orderservice.controllers;
 
-import java.util.concurrent.CompletableFuture;
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,12 +28,12 @@ public class OrderCommandController {
     }
 
     @PostMapping
-    public CompletableFuture<String> createOrder(@RequestBody OrderCreateDTO orderCreateDTO){
-        return orderCommandService.createOrder(orderCreateDTO);
+    public ResponseEntity<String> createOrder(@RequestBody OrderCreateDTO orderCreateDTO){
+        return ResponseEntity.ok(orderCommandService.createOrder(orderCreateDTO));
     }
     
     @DeleteMapping
-    public CompletableFuture<String> deleteOrder(@RequestBody OrderDTO orderDTO){
-        return orderCommandService.deleteOrder(orderDTO);
+    public ResponseEntity<String> deleteOrder(@RequestBody OrderDTO orderDTO){
+    	 return ResponseEntity.ok(orderCommandService.deleteOrder(orderDTO));
     }
 }
