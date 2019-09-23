@@ -11,7 +11,7 @@
 	<groupId>com.progressivecoder.ordermanagement</groupId>
 	<artifactId>saga-orchestrator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>order-service</name>
+	<name>saga-orchestrator</name>
 	<description>Order Service for E-Commerce Store</description>
 
 	<properties>
@@ -77,14 +77,14 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-		</dependency>
-
-		<dependency>
         		<groupId>org.projectlombok</groupId>
         		<artifactId>lombok</artifactId>
         </dependency>
+        
+        <dependency>
+        	<groupId>org.apache.httpcomponents</groupId>
+        	<artifactId>httpclient</artifactId>
+   		 </dependency>
         	
 	</dependencies>
 
