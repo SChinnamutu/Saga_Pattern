@@ -32,6 +32,11 @@ public class OrderCommandController {
         return ResponseEntity.ok(orderCommandService.createOrder(orderCreateDTO));
     }
     
+    @PostMapping
+    public ResponseEntity<String> updateOrder(@RequestBody OrderCreateDTO orderCreateDTO){
+        return ResponseEntity.ok(orderCommandService.updateOrder(orderCreateDTO));
+    }
+    
     @DeleteMapping
     public ResponseEntity<String> deleteOrder(@RequestBody OrderDTO orderDTO){
     	 return ResponseEntity.ok(orderCommandService.deleteOrder(orderDTO));

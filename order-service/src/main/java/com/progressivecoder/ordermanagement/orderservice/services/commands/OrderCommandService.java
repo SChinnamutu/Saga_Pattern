@@ -9,4 +9,6 @@ public interface OrderCommandService {
 
 	public String deleteOrder(OrderDTO orderDTO);
 
+	public String updateOrder(OrderCreateDTO orderCreateDTO);
+
 }

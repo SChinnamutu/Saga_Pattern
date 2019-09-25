@@ -2,7 +2,7 @@ package com.progressivecoder.ordermanagement.orderservice.services.commands;
 
 import java.util.Date;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import com.progressivecoder.ordermanagement.orderservice.repository.OrderTransac
 @Service
 public class OrderCommandServiceImpl implements OrderCommandService {
 
+	private Logger log  = Logger.getLogger(OrderCommandServiceImpl.class.getName());
 	
 	@Autowired
     private  CommandGateway commandGateway ;
@@ -27,10 +28,11 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     
 	@Override
     public String createOrder(OrderCreateDTO orderCreateDTO) {
-		CompletableFuture<String> response = null;
+		//CompletableFuture<String> response = null;
 		OrderTransaction transaction = null;
 		if(orderCreateDTO.getRequestedBy() != null && orderCreateDTO.getRequestedBy().equalsIgnoreCase("CLIENT")) {
-			response = commandGateway.send(new CreateOrderCommand(UUID.randomUUID().toString(), orderCreateDTO.getItemType(),
+			log.info("CreateOrderCommand Started");
+			 commandGateway.send(new CreateOrderCommand(UUID.randomUUID().toString(), orderCreateDTO.getItemType(),
 	                orderCreateDTO.getPrice(), orderCreateDTO.getCurrency(), String.valueOf(OrderStatus.CREATED)));
 		}else if(orderCreateDTO.getRequestedBy() != null && 
 				orderCreateDTO.getRequestedBy().equalsIgnoreCase("ADMIN")) {
@@ -50,10 +52,23 @@ public class OrderCommandServiceImpl implements OrderCommandService {
 
 	@Override
 	public String deleteOrder(OrderDTO orderDTO) {
-		CompletableFuture<String> response = null;
+		//CompletableFuture<String> response = null;
 		OrderTransaction transaction = repository.findBytxnUniqueId(orderDTO.getOrderId());
 		if(transaction != null) {
 			transaction.setStatus("CANCELLED");
+			repository.save(transaction);
+		}
+		//response  = new CompletableFuture<>();
+		//response.complete("SUCCESS");
+		return "SUCCESS";
+	}
+
+	@Override
+	public String updateOrder(OrderCreateDTO orderCreateDTO) {
+		//CompletableFuture<String> response = null;
+		OrderTransaction transaction = repository.findBytxnUniqueId(orderCreateDTO.getOrderId());
+		if(transaction != null) {
+			transaction.setStatus("SHIPPPED");
 			repository.save(transaction);
 		}
 		//response  = new CompletableFuture<>();
