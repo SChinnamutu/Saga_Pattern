@@ -68,16 +68,23 @@ public class InvoiceAggregate {
 		log.info("CreateFailureInvoiceCommand called successfully");
 		AggregateLifecycle.apply(
 				new InvoiceCreatedEvent(createFailureInvoiceCommand.paymentId, createFailureInvoiceCommand.orderId));
-		// rest call request to create
+		// rest call request to invoice
 		OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
 		orderCreateDTO.setPaymentId(paymentId);
 		orderCreateDTO.setOrderId(orderId);
 		orderCreateDTO.setRequestedBy("ADMIN");
 		log.info("CreateFailureInvoiceCommand Request :: " + orderCreateDTO);
-		ResponseEntity<?> responseEntity = this.invokeAPI("http://localhost:8082/api/payments", HttpMethod.DELETE,
+		ResponseEntity<?> invoiceResponseEntity = this.invokeAPI("http://localhost:8082/api/payments", HttpMethod.DELETE,
 				orderCreateDTO, String.class);
-		String mdmMesponse = (String) responseEntity.getBody();
-		log.info("CreateFailureInvoiceCommand Response :: " + mdmMesponse);
+		String invoiceMesponse = (String) invoiceResponseEntity.getBody();
+		log.info("CreateFailureInvoiceCommand Response :: " + invoiceMesponse);
+		//rest call request to remove order
+		log.info("Invoke OrderFailure Service begins");
+		log.info("CreateFailureOrderCommand Request :: " + orderCreateDTO);
+		ResponseEntity<?> orderResponseEntity =  this.invokeAPI("http://localhost:8081/api/orders",HttpMethod.DELETE,orderCreateDTO, String.class);
+		log.info("Invoke OrderFailure Service ends");
+        String orderMesponse =  (String) orderResponseEntity.getBody();
+		log.info("CreateFailureOrderCommand Response :: " + orderMesponse);
 		log.info("CreateFailureInvoiceCommand ends successfully");
     }
 

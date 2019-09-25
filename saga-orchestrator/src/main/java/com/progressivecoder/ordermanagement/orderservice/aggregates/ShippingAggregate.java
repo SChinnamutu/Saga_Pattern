@@ -18,6 +18,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.progressivecoder.ecommerce.commands.CreateFailureShippingCommand;
+import com.progressivecoder.ecommerce.commands.CreateInvoiceCommand;
 import com.progressivecoder.ecommerce.commands.CreateShippingCommand;
 import com.progressivecoder.ecommerce.dto.OrderCreateDTO;
 import com.progressivecoder.ecommerce.events.OrderShippedErrorEvent;
@@ -67,9 +68,9 @@ public class ShippingAggregate {
     
     @CommandHandler
     public ShippingAggregate(CreateFailureShippingCommand createFailureShippingCommand) throws RestClientException, Exception{
-		log.info("CreateShippingCommand called successfully");
+		log.info("CreateFailureShippingCommand called successfully");
         AggregateLifecycle.apply(new OrderShippedEvent(createFailureShippingCommand.shippingId, createFailureShippingCommand.orderId, createFailureShippingCommand.paymentId));
-        //rest api call	
+        //rest api call	to remove shipping
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setOrderId(orderId);
         orderCreateDTO.setPaymentId(paymentId);
@@ -80,7 +81,20 @@ public class ShippingAggregate {
 				HttpMethod.DELETE,orderCreateDTO, CompletableFuture.class);
 		String mdmMesponse = (String)responseEntity.getBody();
 		log.info("CreateFailureShippingCommand Response :: " + mdmMesponse);
-		log.info("CreateShippingCommand ends successfully");
+		// rest call request to remove invoice
+		log.info("CreateFailureInvoiceCommand Request :: " + orderCreateDTO);
+		ResponseEntity<?> invoiceResponseEntity = this.invokeAPI("http://localhost:8082/api/payments", HttpMethod.DELETE,
+				orderCreateDTO, String.class);
+		String invoiceMesponse = (String) invoiceResponseEntity.getBody();
+		log.info("CreateFailureInvoiceCommand Response :: " + invoiceMesponse);
+		//rest call request to remove order
+		log.info("Invoke OrderFailure Service begins");
+		log.info("CreateFailureOrderCommand Request :: " + orderCreateDTO);
+		ResponseEntity<?> orderResponseEntity =  this.invokeAPI("http://localhost:8081/api/orders",HttpMethod.DELETE,orderCreateDTO, String.class);
+		log.info("Invoke OrderFailure Service ends");
+        String orderMesponse =  (String) orderResponseEntity.getBody();
+		log.info("CreateFailureOrderCommand Response :: " + orderMesponse);
+		log.info("CreateFailureShippingCommand ends successfully");
     }
 
     @EventSourcingHandler

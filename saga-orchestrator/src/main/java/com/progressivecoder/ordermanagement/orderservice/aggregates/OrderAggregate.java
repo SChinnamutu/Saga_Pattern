@@ -115,6 +115,8 @@ public class OrderAggregate {
     	log.info("UpdateOrderStatusCommand called successfully");
         AggregateLifecycle.apply(new OrderUpdatedEvent(updateOrderStatusCommand.orderId, updateOrderStatusCommand.orderStatus));
         //rest call to create
+        
+        
         log.info("UpdateOrderStatusCommand ends successfully");
     }
    
