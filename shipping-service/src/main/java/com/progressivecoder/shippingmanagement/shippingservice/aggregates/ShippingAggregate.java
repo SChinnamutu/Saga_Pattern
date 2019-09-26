@@ -1,12 +1,15 @@
 package com.progressivecoder.shippingmanagement.shippingservice.aggregates;
 
-import com.progressivecoder.ecommerce.commands.CreateShippingCommand;
-import com.progressivecoder.ecommerce.events.OrderShippedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
+
+import com.progressivecoder.ecommerce.commands.CreateShippingCommand;
+import com.progressivecoder.ecommerce.commands.ShippingCancelCommand;
+import com.progressivecoder.ecommerce.events.OrderShippedCancelEvent;
+import com.progressivecoder.ecommerce.events.OrderShippedEvent;
 
 @Aggregate
 public class ShippingAggregate {
@@ -23,13 +26,22 @@ public class ShippingAggregate {
 
     @CommandHandler
     public ShippingAggregate(CreateShippingCommand createShippingCommand){
-    	System.out.println("CreateShippingCommand called successfully");
         AggregateLifecycle.apply(new OrderShippedEvent(createShippingCommand.shippingId, createShippingCommand.orderId, createShippingCommand.paymentId));
-        System.out.println("CreateShippingCommand ends successfully");
     }
 
     @EventSourcingHandler
     protected void on(OrderShippedEvent orderShippedEvent){
+        this.shippingId = orderShippedEvent.shippingId;
+        this.orderId = orderShippedEvent.orderId;
+    }
+    
+    @CommandHandler
+    public void on(ShippingCancelCommand createShippingCommand){
+        AggregateLifecycle.apply(new OrderShippedCancelEvent(createShippingCommand.shippingId, createShippingCommand.orderId, createShippingCommand.paymentId));
+    }
+
+    @EventSourcingHandler
+    protected void on(OrderShippedCancelEvent orderShippedEvent){
         this.shippingId = orderShippedEvent.shippingId;
         this.orderId = orderShippedEvent.orderId;
     }
